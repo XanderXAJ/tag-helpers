@@ -34,12 +34,18 @@ def files_to_modify(paths):
 
 # Stop if music_path does not exist
 music_path = Path(args.music_path)
-if not music_path.exists():
+if music_path.is_dir():
+    files = files_to_modify(music_path.glob('**/*.flac'))
+elif music_path.is_file():
+    files = files_to_modify([music_path])
+else:
     print('music_path does not exist', file=sys.stderr)
     exit(1)
 
+
+
 # Modify files as needed
-for file in files_to_modify(music_path.glob('**/*.flac')):
+for file in files:
     print('Migrating', str(file.path))
 
     if needs_album_artist_migration(file):

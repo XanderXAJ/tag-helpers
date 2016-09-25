@@ -14,12 +14,16 @@ args = parser.parse_args()
 
 # Stop if music_path does not exist
 music_path = Path(args.music_path)
-if not music_path.exists():
+if music_path.is_dir():
+    paths = music_path.glob('**/*.flac')
+elif music_path.is_file():
+    paths = [music_path]
+else:
     print('music_path does not exist', file=sys.stderr)
     exit(1)
 
 # Print tags for all files
-for path in music_path.glob('**/*.flac'):
+for path in paths:
     file = taglib.File(str(path))
     print('\n\n\n', str(path), ': ')
     pp.pprint(file.tags);
