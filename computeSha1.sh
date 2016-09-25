@@ -1,2 +1,2 @@
 #!/bin/sh
-find "$1" -type f ! -name 'checksums.sha1' -execdir bash -c 'sha1sum "$@" > "checksums.sha1"' - {} +
+find "$1" -type f ! -name 'checksums.sha1' -execdir bash -c 'pwd && sha1sum "$@" > "checksums.sha1"' - {} +
