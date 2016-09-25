@@ -68,11 +68,14 @@ Vagrant.configure("2") do |config|
   # It's pretty unfortunate that I decide to try out Vagrant and the exact image I choose has broken networking...
   # https://serverfault.com/questions/453185/vagrant-virtualbox-dns-10-0-2-3-not-working
   # https://bugs.launchpad.net/cloud-images/+bug/1621393
-  config.vm.provision :shell, name: "Fix resolv.conf", inline: "ln -nsf ../run/resolvconf/resolv.conf /etc/resolv.conf", privileged: true
+  config.vm.provision :shell, name: "Fix resolv.conf for internet connectivity", inline: "ln -nsf ../run/resolvconf/resolv.conf /etc/resolv.conf", privileged: true
 
-  # Install Ubuntu dependencies
-  config.vm.provision :shell, name: "Install Ubuntu dependencies", path: "setup-ubuntu.sh"
+  # Install python
+  config.vm.provision :shell, name: "Install Python", inline: "apt-get update && apt-get install -y python3 python3-pip"
 
-  # Install Python dependencies
-  config.vm.provision :shell, name: "Install Python dependencies", path: "setup-python.sh"
+  # Install script dependencies from Ubuntu
+  config.vm.provision :shell, name: "Install script dependencies from Ubuntu", path: "setup-ubuntu.sh"
+
+  # Install script dependencies from Python
+  config.vm.provision :shell, name: "Install script dependencies from Python", inline: "python3 -m pip install --upgrade -r /vagrant/requirements.txt"
 end
