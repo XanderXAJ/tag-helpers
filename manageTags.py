@@ -83,9 +83,7 @@ args = parser.parse_args()
 
 # Quit immediately if no operations are to be performed
 if args.operation == None:
-    print('No operations to perform')
-    parser.print_usage()
-    sys.exit(1)
+    parser.error('No operations to perform')
 
 operations_to_perform = [operation_library.get(x) for x in args.operation]
 
