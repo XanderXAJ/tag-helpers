@@ -15,7 +15,7 @@ args = parser.parse_args()
 def needs_album_artist_migration(file):
     return 'ALBUM ARTIST' in file.tags
 
-# Return whether the music file requires
+# Return whether the music file requires ALBUM ARTIST/ALBUMARTIST reducing to "Various"
 def needs_album_artist_reduction(file):
     for tag in ['ALBUMARTIST', 'ALBUM ARTIST']:
         if tag in file.tags:
