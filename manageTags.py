@@ -44,7 +44,7 @@ class AlbumArtistReductionOperation(Operation):
 
 class RemoveFB2KPlaybacklStatisticsOperation(Operation):
     """Removes tags added by the Foobar2000 Playback Statistics plugin"""
-    TAGS = ['ADDED_TIMESTAMP', 'FIRST_PLAYED_TIMESTAMP', 'LAST_PLAYED_TIMESTAMP', 'PLAY_COUNT']
+    TAGS = ['ADDED_TIMESTAMP', 'FIRST_PLAYED_TIMESTAMP', 'LAST_PLAYED_TIMESTAMP', 'PLAY_COUNT', 'RATING']
 
     def check(self, file):
         for tag in self.TAGS:
