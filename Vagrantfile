@@ -73,4 +73,7 @@ Vagrant.configure("2") do |config|
 
   # Install script dependencies from Python
   config.vm.provision :shell, name: "Install script dependencies from Python", inline: "python3 -m pip install --upgrade -r /vagrant/requirements.txt"
+
+  # Quality of life changes
+  config.vm.provision :shell, inline: "echo 'cd /vagrant' >> ~ubuntu/.profile"
 end
