@@ -62,11 +62,6 @@ operation_library = {
     "print_tags": PrintTagsOperation()
 }
 
-operations_to_perform = [
-    operation_library.get("album_artist_migration"),
-    operation_library.get("album_artist_reduction")
-]
-
 # Yields files that require modifications
 def files_to_modify(paths, operations):
     for path in paths:
@@ -82,13 +77,17 @@ def files_to_modify(paths, operations):
 
 # Parse arguments
 parser = argparse.ArgumentParser()
+parser.add_argument('-o', '--operation', choices=operation_library, action='append')
 parser.add_argument('music_path')
 args = parser.parse_args()
 
 # Quit immediately if no operations are to be performed
-if len(operations_to_perform) <= 0:
+if args.operation == None:
     print('No operations to perform')
-    sys.exit(0)
+    parser.print_usage()
+    sys.exit(1)
+
+operations_to_perform = [operation_library.get(x) for x in args.operation]
 
 # Stop if music_path does not exist
 music_path = Path(args.music_path)
