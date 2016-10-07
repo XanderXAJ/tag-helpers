@@ -76,7 +76,7 @@ operation_library = {
     "album_artist_migration": AlbumArtistMigrationOperation(),
     "album_artist_reduction": AlbumArtistReductionOperation(),
     "print_tags": PrintTagsOperation(),
-    "remove_fb2k_playback_statistcs": RemoveFB2KPlaybacklStatisticsOperation()
+    "remove_fb2k_playback_statistics": RemoveFB2KPlaybacklStatisticsOperation()
 }
 
 # Yields files that require modifications
