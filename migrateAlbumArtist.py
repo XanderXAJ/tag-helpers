@@ -7,56 +7,46 @@ import taglib
 import sys
 from pathlib import Path
 
-
-# Returns whether the music file requires ALBUM ARTIST -> ALBUMARTIST migration
-def needs_album_artist_migration(file):
-    return 'ALBUM ARTIST' in file.tags
-
-# Performs album artist migration
-def album_artist_migration(file):
-    file.tags['ALBUMARTIST'] = file.tags['ALBUM ARTIST']
-    del file.tags['ALBUM ARTIST']
-
-# Return whether the music file requires ALBUM ARTIST/ALBUMARTIST reducing to "Various"
-def needs_album_artist_reduction(file):
-    for tag in ['ALBUMARTIST', 'ALBUM ARTIST']:
-        if tag in file.tags:
-            album_artists = list(map(str.lower, file.tags[tag]))
-            if (len(album_artists) > 1
-              and ('various' in album_artists or 'various artists' in album_artists)):
-                return True
-    return False
-
-def album_artist_reduction(file):
-    file.tags['ALBUMARTIST'] = ['Various']
-
 class Operation:
     """Checks the need for, and executes, operations on files"""
-    from types import FunctionType
-
-    def __init__(self, check, operation):
-        # Requires two valid functions
-        if not (isinstance(check, self.FunctionType) and isinstance(operation, self.FunctionType)):
-            raise TypeError("check and operation must be functions")
-
-        self.__check = check
-        self.__operation = operation
-
     def check(self, file):
-        return self.__check(file)
+        raise NotImplemented
 
     def execute(self, file):
-        return self.__operation(file)
+        raise NotImplemented
+
+    def safe_execute(self, file):
+        if self.check(file):
+            return self.execute(file)
+
+class AlbumArtistMigrationOperation(Operation):
+    """Checks and performs ALBUM ARTIST -> ALBUMARTIST migration"""
+    def check(self, file):
+        return 'ALBUM ARTIST' in file.tags
+
+    def execute(self, file):
+        file.tags['ALBUMARTIST'] = file.tags['ALBUM ARTIST']
+        del file.tags['ALBUM ARTIST']
+
+class AlbumArtistReductionOperation(Operation):
+    """Reduces ALBUM ARTIST/ALBUMARTIST to 'Various'"""
+    def check(self, file):
+        for tag in ['ALBUMARTIST', 'ALBUM ARTIST']:
+            if tag in file.tags:
+                album_artists = list(map(str.lower, file.tags[tag]))
+                if (len(album_artists) > 1
+                  and ('various' in album_artists or 'various artists' in album_artists)):
+                    return True
+        return False
+
+    def execute(self, file):
+        file.tags['ALBUMARTIST'] = ['Various']
+
+
 
 operation_library = {
-    "album_artist_migration": Operation(
-        check=needs_album_artist_migration,
-        operation=album_artist_migration
-    ),
-    "album_artist_reduction": Operation(
-        check=needs_album_artist_reduction,
-        operation=album_artist_reduction
-    )
+    "album_artist_migration": AlbumArtistMigrationOperation(),
+    "album_artist_reduction": AlbumArtistReductionOperation()
 }
 
 operations_to_perform = [
@@ -102,7 +92,6 @@ for file in files:
     print('Operating on', str(file.path))
 
     for operation in operations_to_perform:
-        if operation.check(file):
-            operation.execute(file)
+        operation.safe_execute(file)
 
     file.save()
