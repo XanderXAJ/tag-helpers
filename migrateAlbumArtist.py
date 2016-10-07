@@ -63,7 +63,7 @@ operation_library = {
 }
 
 # Yields files that require modifications
-def files_to_modify(paths, operations):
+def files_requiring_operations(paths, operations):
     for path in paths:
         file = taglib.File(str(path))
         for operation in operations:
@@ -92,9 +92,9 @@ operations_to_perform = [operation_library.get(x) for x in args.operation]
 # Stop if music_path does not exist
 music_path = Path(args.music_path)
 if music_path.is_dir():
-    files = files_to_modify(music_path.glob('**/*.flac'), operations_to_perform)
+    files = files_requiring_operations(music_path.glob('**/*.flac'), operations_to_perform)
 elif music_path.is_file():
-    files = files_to_modify([music_path])
+    files = files_requiring_operations([music_path])
 else:
     print('music_path does not exist', file=sys.stderr)
     exit(1)
