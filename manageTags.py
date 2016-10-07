@@ -54,7 +54,8 @@ class RemoveFB2KPlaybacklStatisticsOperation(Operation):
 
     def execute(self, file):
         for tag in self.TAGS:
-            del file.tags[tag]
+            if tag in file.tags:
+                del file.tags[tag]
 
 
 class PrintTagsOperation(Operation):
