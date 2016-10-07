@@ -65,11 +65,6 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
 
-  # It's pretty unfortunate that I decide to try out Vagrant and the exact image I choose has broken networking...
-  # https://serverfault.com/questions/453185/vagrant-virtualbox-dns-10-0-2-3-not-working
-  # https://bugs.launchpad.net/cloud-images/+bug/1621393
-  config.vm.provision :shell, name: "Fix resolv.conf for internet connectivity", inline: "ln -nsf ../run/resolvconf/resolv.conf /etc/resolv.conf", privileged: true
-
   # Install python
   config.vm.provision :shell, name: "Install Python", inline: "apt-get update && apt-get install -y python3 python3-pip"
 
