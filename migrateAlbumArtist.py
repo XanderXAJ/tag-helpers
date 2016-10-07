@@ -42,11 +42,24 @@ class AlbumArtistReductionOperation(Operation):
     def execute(self, file):
         file.tags['ALBUMARTIST'] = ['Various']
 
+class PrintTagsOperation(Operation):
+    """Prints file tags"""
+    import pprint
+    pp = pprint.PrettyPrinter()
+
+    def check(self, file):
+        return True
+
+    def execute(self, file):
+        self.pp.pprint(file.tags);
+        self.pp.pprint(file.unsupported)
+
 
 
 operation_library = {
     "album_artist_migration": AlbumArtistMigrationOperation(),
-    "album_artist_reduction": AlbumArtistReductionOperation()
+    "album_artist_reduction": AlbumArtistReductionOperation(),
+    "print_tags": PrintTagsOperation()
 }
 
 operations_to_perform = [
