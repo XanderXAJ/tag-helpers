@@ -42,7 +42,7 @@ class AlbumArtistReductionOperation(Operation):
     def execute(self, file):
         file.tags['ALBUMARTIST'] = ['Various']
 
-class RemoveFB2KPlaybacklStatisticsOperation(Operation):
+class RemoveFB2KPlaybackStatisticsOperation(Operation):
     """Removes tags added by the Foobar2000 Playback Statistics plugin"""
     TAGS = ['ADDED_TIMESTAMP', 'FIRST_PLAYED_TIMESTAMP', 'LAST_PLAYED_TIMESTAMP', 'PLAY_COUNT', 'RATING']
 
@@ -76,7 +76,7 @@ operation_library = {
     "album_artist_migration": AlbumArtistMigrationOperation(),
     "album_artist_reduction": AlbumArtistReductionOperation(),
     "print_tags": PrintTagsOperation(),
-    "remove_fb2k_playback_statistics": RemoveFB2KPlaybacklStatisticsOperation()
+    "remove_fb2k_playback_statistics": RemoveFB2KPlaybackStatisticsOperation()
 }
 
 # Yields files that require modifications
