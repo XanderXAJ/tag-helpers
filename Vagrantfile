@@ -37,7 +37,13 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "E:/Workflow", "/workflow"
+
+  # Mount the first workflow path found;
+  # Unfortunately VirtualBox cannot mount symlinks or junctions, so there are different paths or different machines
+  workflow_paths = ["E:/Workflow", "C:/Workflow"].select { |path| File.directory?(path) }
+  if !workflow_paths.empty?
+    config.vm.synced_folder workflow_paths[0], "/workflow"
+  end
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
