@@ -11,6 +11,11 @@ Vagrant.configure("2") do |config|
     config.vm.synced_folder workflow_paths[0], "/workflow"
   end
 
+  config.vm.provider 'virtualbox' do |vb|
+    # Work around "Rejecting I/O to offline device" issue
+    vb.customize ["storagectl", :id, "--name", "SCSI Controller", "--hostiocache", "on"]
+  end
+
   # Install python
   config.vm.provision :shell, name: "Install Python", inline: "apt-get update && apt-get install -y python3 python3-pip"
 
