@@ -85,7 +85,7 @@ operation_library = {
     "album_artist_reduction": AlbumArtistReductionOperation(),
     "print_tags": PrintTagsOperation(),
     "remove_fb2k_playback_statistics": RemoveTags(tags=['ADDED_TIMESTAMP', 'FIRST_PLAYED_TIMESTAMP', 'LAST_PLAYED_TIMESTAMP', 'PLAY_COUNT', 'RATING']),
-    "remove_sort_tags": RemoveTags(tags=['ALBUMARTISTSORT', 'ARTISTSORT', 'COMPOSERSORT'])
+    "remove_sort_tags": RemoveTags(tags=['ALBUMARTISTSORT', 'ALBUMSORT', 'ARTISTSORT', 'COMPOSERSORT', 'TITLESORT'])
 }
 
 # Yields files that require modifications
