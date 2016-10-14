@@ -2,7 +2,7 @@
 # printTags
 # Pretty prints tags for all FLAC files under a given directory.
 import argparse
-import taglib
+import mutagen
 from pathlib import Path
 
 import pprint
@@ -24,7 +24,6 @@ else:
 
 # Print tags for all files
 for path in paths:
-    file = taglib.File(str(path))
-    print('\n\n\n', str(path), ': ')
-    pp.pprint(file.tags);
-    pp.pprint(file.unsupported)
+    file = mutagen.File(str(path))
+    print('\n\n\n', path, ': ')
+    print(file.pprint())

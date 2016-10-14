@@ -5,7 +5,7 @@
 import argparse
 import signal
 import sys
-import taglib
+import mutagen
 from pathlib import Path
 
 # Handle keyboard exceptions by default
@@ -30,25 +30,25 @@ class Operation:
 class AlbumArtistMigrationOperation(Operation):
     """Checks and performs ALBUM ARTIST -> ALBUMARTIST migration"""
     def check(self, file):
-        return 'ALBUM ARTIST' in file.tags
+        return 'ALBUM ARTIST' in file
 
     def execute(self, file):
-        file.tags['ALBUMARTIST'] = file.tags['ALBUM ARTIST']
-        del file.tags['ALBUM ARTIST']
+        file['ALBUMARTIST'] = file['ALBUM ARTIST']
+        del file['ALBUM ARTIST']
 
 class AlbumArtistReductionOperation(Operation):
     """Reduces ALBUM ARTIST/ALBUMARTIST to 'Various'"""
     def check(self, file):
         for tag in ['ALBUMARTIST', 'ALBUM ARTIST']:
-            if tag in file.tags:
-                album_artists = list(map(str.lower, file.tags[tag]))
+            if tag in file:
+                album_artists = list(map(str.lower, file[tag]))
                 if (len(album_artists) > 1
                   and ('various' in album_artists or 'various artists' in album_artists)):
                     return True
         return False
 
     def execute(self, file):
-        file.tags['ALBUMARTIST'] = ['Various']
+        file['ALBUMARTIST'] = ['Various']
 
 class RemoveTags(Operation):
     """Removes the specified tags"""
@@ -57,26 +57,22 @@ class RemoveTags(Operation):
 
     def check(self, file):
         for tag in self.tags:
-            if tag in file.tags:
+            if tag in file:
                 return True
         return False
 
     def execute(self, file):
         for tag in self.tags:
-            if tag in file.tags:
-                del file.tags[tag]
+            if tag in file:
+                del file[tag]
 
 class PrintTagsOperation(Operation):
     """Prints file tags"""
-    import pprint
-    pp = pprint.PrettyPrinter()
-
     def check(self, file):
         return True
 
     def execute(self, file):
-        self.pp.pprint(file.tags);
-        self.pp.pprint(file.unsupported)
+        print(file.pprint())
 
 
 
@@ -92,10 +88,10 @@ operation_library = {
 # Yields files that require modifications
 def files_requiring_operations(paths, operations):
     for path in paths:
-        file = taglib.File(str(path))
+        file = mutagen.File(str(path))
         for operation in operations:
             if operation.check(file):
-                yield file
+                yield (path, file)
                 break
 
 
@@ -126,9 +122,9 @@ else:
     exit(1)
 
 # Modify files as needed
-for file in files:
+for (path, file) in files:
     try:
-        print('Operating on', str(file.path))
+        print('Operating on', path)
 
         for operation in operations_to_perform:
             operation.safe_execute(file)
