@@ -32,6 +32,7 @@ I'll attempt to list the problems that need solving.
 - Tags could possibly be compared for track-level change detection
     - In my use case I have FLAC tags, MP4 tags and ID3v2.4 tags
     - `pytaglib` may be useful here
+        - Uses `taglib`, which is written in C and difficult to compile for Windows
         - Album art is completely unsupported
         - It seems to support FLAC well:
         ```
@@ -51,6 +52,8 @@ I'll attempt to list the problems that need solving.
         >>> ly.unsupported
         ['----:com.apple.iTunes:albumartistsort', '----:com.apple.iTunes:artistsort', '----:com.apple.iTunes:cdec', '----:com.apple.iTunes:iTunSMPB', '----:com.apple.iTunes:language', '----:com.apple.iTunes:musicbrainz_albumartistid', '----:com.apple.iTunes:musicbrainz_albumid', '----:com.apple.iTunes:musicbrainz_artistid', '----:com.apple.iTunes:musicbrainz_trackid', '----:com.apple.iTunes:musicip_puid', '----:com.apple.iTunes:releasecountry', '----:com.apple.iTunes:releasestatus', '----:com.apple.iTunes:releasetype', '----:com.apple.iTunes:replaygain_album_gain', '----:com.apple.iTunes:replaygain_track_gain', '----:com.apple.iTunes:script', 'aART']
         ```
+    - `mutagen`, which is used by MusicBrainz Picard, seems promising
+        - It is implemented in Python, which means it will install on windows too!
 
 # File modification detection
 
