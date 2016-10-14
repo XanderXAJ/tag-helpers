@@ -4,8 +4,16 @@
 # Will also reduce ALBUMARTIST tags to just "Various" if the field contains multiple artists and one of them is either "Various" or "Various Artists"
 import argparse
 import taglib
+import signal
 import sys
 from pathlib import Path
+
+# Handle keyboard exceptions by default
+def sigint_handler(signal, frame):
+    print("Interrupt received, stopping...", file=sys.stderr)
+    sys.exit(1)
+signal.signal(signal.SIGINT, sigint_handler)
+
 
 class Operation:
     """Checks the need for, and executes, operations on files"""
@@ -117,9 +125,14 @@ else:
 
 # Modify files as needed
 for file in files:
-    print('Operating on', str(file.path))
+    try:
+        print('Operating on', str(file.path))
 
-    for operation in operations_to_perform:
-        operation.safe_execute(file)
+        for operation in operations_to_perform:
+            operation.safe_execute(file)
 
-    file.save()
+        file.save()
+    except (KeyboardInterrupt, SystemExit):
+        print("Interrupt received, stopping...", file=sys.stderr)
+        file.close()
+        sys.exit(1)
