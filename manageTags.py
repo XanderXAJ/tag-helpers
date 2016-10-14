@@ -42,33 +42,19 @@ class AlbumArtistReductionOperation(Operation):
     def execute(self, file):
         file.tags['ALBUMARTIST'] = ['Various']
 
-class RemoveFB2KPlaybackStatisticsOperation(Operation):
-    """Removes tags added by the Foobar2000 Playback Statistics plugin"""
-    TAGS = ['ADDED_TIMESTAMP', 'FIRST_PLAYED_TIMESTAMP', 'LAST_PLAYED_TIMESTAMP', 'PLAY_COUNT', 'RATING']
+class RemoveTags(Operation):
+    """Removes the specified tags"""
+    def __init__(self, tags):
+        self.tags = tags
 
     def check(self, file):
-        for tag in self.TAGS:
+        for tag in self.tags:
             if tag in file.tags:
                 return True
         return False
 
     def execute(self, file):
-        for tag in self.TAGS:
-            if tag in file.tags:
-                del file.tags[tag]
-
-class RemoveSortTags(Operation):
-    """Removes tags related to sorting"""
-    TAGS = ['ALBUMARTISTSORT', 'ARTISTSORT']
-
-    def check(self, file):
-        for tag in self.TAGS:
-            if tag in file.tags:
-                return True
-        return False
-
-    def execute(self, file):
-        for tag in self.TAGS:
+        for tag in self.tags:
             if tag in file.tags:
                 del file.tags[tag]
 
@@ -90,8 +76,8 @@ operation_library = {
     "album_artist_migration": AlbumArtistMigrationOperation(),
     "album_artist_reduction": AlbumArtistReductionOperation(),
     "print_tags": PrintTagsOperation(),
-    "remove_fb2k_playback_statistics": RemoveFB2KPlaybackStatisticsOperation(),
-    "remove_sort_tags": RemoveSortTags()
+    "remove_fb2k_playback_statistics": RemoveTags(tags=['ADDED_TIMESTAMP', 'FIRST_PLAYED_TIMESTAMP', 'LAST_PLAYED_TIMESTAMP', 'PLAY_COUNT', 'RATING']),
+    "remove_sort_tags": RemoveTags(tags=['ALBUMARTISTSORT', 'ARTISTSORT'])
 }
 
 # Yields files that require modifications
