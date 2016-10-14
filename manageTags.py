@@ -14,6 +14,10 @@ def sigint_handler(signal, frame):
     sys.exit(1)
 signal.signal(signal.SIGINT, sigint_handler)
 
+# Perform system default operation when pipe is broken
+# Prevents: BrokenPipeError: [Errno 32] Broken pipe
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
 
 class Operation:
     """Checks the need for, and executes, operations on files"""
