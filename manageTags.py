@@ -14,10 +14,6 @@ def sigint_handler(signal, frame):
     sys.exit(1)
 signal.signal(signal.SIGINT, sigint_handler)
 
-# Perform system default operation when pipe is broken
-# Prevents: BrokenPipeError: [Errno 32] Broken pipe
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-
 
 class Operation:
     """Checks the need for, and executes, operations on files"""
@@ -138,5 +134,8 @@ for file in files:
         file.save()
     except (KeyboardInterrupt, SystemExit):
         print("Interrupt received, stopping...", file=sys.stderr)
+        file.close()
+        sys.exit(1)
+    except BrokenPipeError:
         file.close()
         sys.exit(1)
