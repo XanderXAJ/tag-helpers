@@ -19,9 +19,6 @@ Vagrant.configure("2") do |config|
   # Install python
   config.vm.provision :shell, name: "Install Python", inline: "apt-get update && apt-get install -y python3 python3-pip"
 
-  # Install script dependencies from Ubuntu
-  config.vm.provision :shell, name: "Install script dependencies from Ubuntu", path: "setup-ubuntu.sh"
-
   # Install script dependencies from Python
   config.vm.provision :shell, name: "Install script dependencies from Python", inline: "python3 -m pip install --upgrade -r /vagrant/requirements.txt"
 
