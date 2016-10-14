@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
 
   # Make it easier to test things in Vagrant
   config.vm.provision :shell, inline: <<-SHELL
-    apt-get install tree
+    apt-get install tree recode
     echo 'cd /vagrant' >> ~ubuntu/.profile
     ln -nsf /vagrant/.bash_history ~ubuntu/
   SHELL
