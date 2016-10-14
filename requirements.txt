@@ -1,1 +1,1 @@
-pytaglib
+mutagen == 1.34.1
