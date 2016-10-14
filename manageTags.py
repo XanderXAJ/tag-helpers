@@ -57,6 +57,20 @@ class RemoveFB2KPlaybackStatisticsOperation(Operation):
             if tag in file.tags:
                 del file.tags[tag]
 
+class RemoveSortTags(Operation):
+    """Removes tags related to sorting"""
+    TAGS = ['ALBUMARTISTSORT', 'ARTISTSORT']
+
+    def check(self, file):
+        for tag in self.TAGS:
+            if tag in file.tags:
+                return True
+        return False
+
+    def execute(self, file):
+        for tag in self.TAGS:
+            if tag in file.tags:
+                del file.tags[tag]
 
 class PrintTagsOperation(Operation):
     """Prints file tags"""
@@ -76,7 +90,8 @@ operation_library = {
     "album_artist_migration": AlbumArtistMigrationOperation(),
     "album_artist_reduction": AlbumArtistReductionOperation(),
     "print_tags": PrintTagsOperation(),
-    "remove_fb2k_playback_statistics": RemoveFB2KPlaybackStatisticsOperation()
+    "remove_fb2k_playback_statistics": RemoveFB2KPlaybackStatisticsOperation(),
+    "remove_sort_tags": RemoveSortTags()
 }
 
 # Yields files that require modifications
