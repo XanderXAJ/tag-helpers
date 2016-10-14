@@ -105,6 +105,7 @@ def files_requiring_operations(paths, operations):
 # Parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-o', '--operation', choices=operation_library, action='append')
+parser.add_argument('-e', '--extension', default='flac')
 parser.add_argument('music_path')
 args = parser.parse_args()
 
@@ -117,7 +118,7 @@ operations_to_perform = [operation_library.get(x) for x in args.operation]
 # Stop if music_path does not exist
 music_path = Path(args.music_path)
 if music_path.is_dir():
-    files = files_requiring_operations(music_path.glob('**/*.flac'), operations_to_perform)
+    files = files_requiring_operations(music_path.glob('**/*.{extension}'.format(extension=args.extension)), operations_to_perform)
 elif music_path.is_file():
     files = files_requiring_operations([music_path])
 else:
