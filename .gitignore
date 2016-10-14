@@ -1,6 +1,7 @@
 *.log
 /.vagrant
 /music
-/musiclossy
 /musictmp
+/musiclossy
+/musiclossytmp
 /.bash_history
