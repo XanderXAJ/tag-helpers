@@ -3,9 +3,9 @@
 # Migrates music tracks from ALBUM ARTIST to ALBUMARTIST, for wide software compatibility.
 # Will also reduce ALBUMARTIST tags to just "Various" if the field contains multiple artists and one of them is either "Various" or "Various Artists"
 import argparse
-import taglib
 import signal
 import sys
+import taglib
 from pathlib import Path
 
 # Handle keyboard exceptions by default
