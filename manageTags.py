@@ -3,9 +3,13 @@
 # Migrates music tracks from ALBUM ARTIST to ALBUMARTIST, for wide software compatibility.
 # Will also reduce ALBUMARTIST tags to just "Various" if the field contains multiple artists and one of them is either "Various" or "Various Artists"
 import argparse
+import os
 import signal
+import shutil
 import sys
+import tempfile
 import mutagen
+from atomicwrites import atomic_write
 from pathlib import Path
 
 # Handle keyboard exceptions by default
@@ -129,7 +133,21 @@ for (path, file) in files:
         for operation in operations_to_perform:
             operation.safe_execute(file)
 
-        file.save()
+        # Mutagen writes directly to the file in question.  If something should go
+        # wrong (e.g. power failure, shutdown), the file would be left in an undefined
+        # (and probably corrupt state).  To minimise the chances of this, copy
+        # contents to a temp file and swap the original and temp files as atomically
+        # as possible on the platform.
+        with atomic_write(str(path), overwrite=True, mode='w+b') as temp_file:
+            # Copy original file in to temp file
+            with open(str(path), 'rb') as orig_file:
+                shutil.copyfileobj(orig_file, temp_file)
+
+            # Seek back to beginning of file
+            temp_file.seek(0, os.SEEK_SET)
+
+            # Write modifications to temp file
+            file.save(temp_file)
     except (KeyboardInterrupt, SystemExit):
         print("Interrupt received, stopping...", file=sys.stderr)
         file.close()
