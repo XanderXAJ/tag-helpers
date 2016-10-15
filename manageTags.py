@@ -88,7 +88,7 @@ operation_library = {
 # Yields files that require modifications
 def files_requiring_operations(paths, operations):
     for path in paths:
-        file = mutagen.File(str(path))
+        file = mutagen.File(str(path), easy=True)
         for operation in operations:
             if operation.check(file):
                 yield (path, file)
