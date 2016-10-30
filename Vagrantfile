@@ -5,7 +5,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
 
   # Mount the first workflow path found;
-  # Unfortunately VirtualBox cannot mount symlinks or junctions, so there are different paths or different machines
+  # Unfortunately VirtualBox cannot mount symlinks or junctions, so there are different paths for different machines
   workflow_paths = ["E:/Workflow", "C:/Workflow"].select { |path| File.directory?(path) }
   if !workflow_paths.empty?
     config.vm.synced_folder workflow_paths[0], "/workflow"
