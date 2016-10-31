@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider 'virtualbox' do |vb|
     # Work around "Rejecting I/O to offline device" issue
-    vb.customize ["storagectl", :id, "--name", "SCSI Controller", "--hostiocache", "on"]
+    vb.customize ["storagectl", :id, "--name", "SCSI", "--hostiocache", "on"]
   end
 
   # Install python
