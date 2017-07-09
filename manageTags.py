@@ -19,8 +19,9 @@ signal.signal(signal.SIGINT, sigint_handler)
 
 
 class Operation:
-    """Checks the need for, and executes, operations on files"""
+    """Represents an operation that may be executed on a file"""
     def check(self, file):
+        """Checks the need for, and executes, operations on files"""
         raise NotImplementedError
 
     def execute(self, file):
@@ -46,7 +47,7 @@ class AlbumArtistReductionOperation(Operation):
             if tag in file:
                 album_artists = list(map(str.lower, file[tag]))
                 if (len(album_artists) > 1
-                  and ('various' in album_artists or 'various artists' in album_artists)):
+                        and ('various' in album_artists or 'various artists' in album_artists)):
                     return True
         return False
 
