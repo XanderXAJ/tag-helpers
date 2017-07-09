@@ -7,10 +7,9 @@ import os
 import signal
 import shutil
 import sys
-import tempfile
+from pathlib import Path
 import mutagen
 from atomicwrites import atomic_write
-from pathlib import Path
 
 # Handle keyboard exceptions by default
 def sigint_handler(signal, frame):
@@ -22,10 +21,10 @@ signal.signal(signal.SIGINT, sigint_handler)
 class Operation:
     """Checks the need for, and executes, operations on files"""
     def check(self, file):
-        raise NotImplemented
+        raise NotImplementedError
 
     def execute(self, file):
-        raise NotImplemented
+        raise NotImplementedError
 
     def safe_execute(self, file):
         if self.check(file):
@@ -120,7 +119,7 @@ music_path = Path(args.music_path)
 if music_path.is_dir():
     files = files_requiring_operations(music_path.glob('**/*.{extension}'.format(extension=args.extension)), operations_to_perform)
 elif music_path.is_file():
-    files = files_requiring_operations([music_path])
+    files = files_requiring_operations([music_path], operations_to_perform)
 else:
     print('music_path does not exist', file=sys.stderr)
     exit(1)
