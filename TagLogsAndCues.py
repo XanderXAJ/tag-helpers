@@ -21,8 +21,8 @@ def find_disc_number(file):
 
     if match is not None:
         return match.group('disc')
-    else:
-        return None
+
+    return None
 
 def map_disc_numbers_to_file_contents(files, encoding):
     """Maps the disc numbers of files to their contents
