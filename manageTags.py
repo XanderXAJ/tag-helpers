@@ -137,7 +137,7 @@ for (path, file) in files:
         # wrong (e.g. power failure, shutdown), the file would be left in an undefined
         # (and probably corrupt state).  To minimise the chances of this, copy
         # contents to a temp file and swap the original and temp files as atomically
-        # as possible on the platform.
+        # as possible on the platform. Atomic Writes performs the swap.
         with atomic_write(str(path), overwrite=True, mode='w+b') as temp_file:
             # Copy original file in to temp file
             with open(str(path), 'rb') as orig_file:
