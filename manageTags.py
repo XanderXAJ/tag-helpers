@@ -135,7 +135,7 @@ for (path, file) in files:
 
         # Mutagen writes directly to the file in question.  If something should go
         # wrong (e.g. power failure, shutdown), the file would be left in an undefined
-        # (and probably corrupt state).  To minimise the chances of this, copy
+        # (and probably corrupt) state.  To minimise the chances of this, copy
         # contents to a temp file and swap the original and temp files as atomically
         # as possible on the platform. Atomic Writes performs the swap.
         with atomic_write(str(path), overwrite=True, mode='w+b') as temp_file:
