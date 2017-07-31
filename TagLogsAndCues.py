@@ -88,7 +88,7 @@ def save_atomically(path, music_file):
             # Write modifications to temp file
             music_file.save(temp_file)
     except (KeyboardInterrupt, SystemExit):
-        logging.critical("Interrupt received, stopping...", file=sys.stderr)
+        logging.critical("Interrupt received, stopping...")
         music_file.close()
         sys.exit(1)
     except BrokenPipeError:
@@ -114,7 +114,7 @@ def main():
     music_path = Path(args.music_path)
     logging.info(music_path)
     if not music_path.is_dir():
-        logging.error('music_path is not a directory or does not exist', file=sys.stderr)
+        logging.error('music_path is not a directory or does not exist')
         sys.exit(1)
 
     # Find LOGs
