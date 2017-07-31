@@ -101,10 +101,15 @@ def main():
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--cue_encoding', default='Windows-1252')
+    parser.add_argument('--log_level', help='Set logging level', default='WARNING',
+                        choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'])
     parser.add_argument('-e', '--extension', default='flac')
     parser.add_argument('--log-encoding', default='utf-16')
     parser.add_argument('music_path')
     args = parser.parse_args()
+
+    # Set logging level
+    logging.basicConfig(level=logging.getLevelName(args.log_level))
 
     music_path = Path(args.music_path)
     logging.info(music_path)
