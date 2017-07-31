@@ -112,9 +112,9 @@ def main():
     logging.basicConfig(level=logging.getLevelName(args.log_level))
 
     music_path = Path(args.music_path)
-    logging.info(music_path)
+    logging.info('Starting: %s', music_path)
     if not music_path.is_dir():
-        logging.error('music_path is not a directory or does not exist')
+        logging.error('music_path is not a directory or does not exist: %s', music_path)
         sys.exit(1)
 
     # Find LOGs
