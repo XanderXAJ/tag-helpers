@@ -62,7 +62,7 @@ def apply_disc_specific_tag(path, music_file, disc_mapping, tag):
     """Applies the appropriate disc-specific mapping to music_files's tag, if one exists"""
     disc_number = music_file['discnumber'][0]
     if disc_number in disc_mapping:
-        logging.info('Applying disc {} {} to {}'.format(disc_number, tag, path))
+        logging.info('Applying disc %s %s to %s', disc_number, tag, path)
         music_file[tag] = [disc_mapping[disc_number]]
         return True
 
