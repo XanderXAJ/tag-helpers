@@ -4,6 +4,7 @@ Tags files with logs and cuesheets that correspond to their disc.
 Note: It assumes one release per directory.
 """
 import argparse
+import logging
 import os
 from pathlib import Path
 import re
@@ -52,7 +53,7 @@ def map_disc_numbers_to_values_map(files, encoding):
     if len(list(files)) == 1 and len(tag_map) == 0:
         # There is only one file and it did not feature a disc number in the name,
         # therefore assume it is disc 1 of a single-disc release
-        print('Only one file with no obvious disc number, assuming single-disc release')
+        logging.info('Only one file with no obvious disc number, assuming single-disc release')
         tag_map = {'1': read_text_from_file(files[0], encoding)}
 
     return tag_map
@@ -61,7 +62,7 @@ def apply_disc_specific_tag(path, music_file, disc_mapping, tag):
     """Applies the appropriate disc-specific mapping to music_files's tag, if one exists"""
     disc_number = music_file['discnumber'][0]
     if disc_number in disc_mapping:
-        print('Applying disc {} {} to {}'.format(disc_number, tag, path))
+        logging.info('Applying disc {} {} to {}'.format(disc_number, tag, path))
         music_file[tag] = [disc_mapping[disc_number]]
         return True
 
@@ -87,7 +88,7 @@ def save_atomically(path, music_file):
             # Write modifications to temp file
             music_file.save(temp_file)
     except (KeyboardInterrupt, SystemExit):
-        print("Interrupt received, stopping...", file=sys.stderr)
+        logging.critical("Interrupt received, stopping...", file=sys.stderr)
         music_file.close()
         sys.exit(1)
     except BrokenPipeError:
@@ -106,9 +107,9 @@ def main():
     args = parser.parse_args()
 
     music_path = Path(args.music_path)
-    print(music_path)
+    logging.info(music_path)
     if not music_path.is_dir():
-        print('music_path is not a directory or does not exist', file=sys.stderr)
+        logging.error('music_path is not a directory or does not exist', file=sys.stderr)
         sys.exit(1)
 
     # Find LOGs
