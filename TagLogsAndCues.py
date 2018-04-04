@@ -16,6 +16,7 @@ import mutagen
 
 DISC_NUMBER_REGEX = re.compile(r'\Wdisc (?P<disc>[0-9]+)\W')
 
+
 def find_disc_number(file):
     """Attempts to find the disc number in a file's name, returns None if none is found"""
     match = DISC_NUMBER_REGEX.search(file.stem)
@@ -25,12 +26,14 @@ def find_disc_number(file):
 
     return None
 
+
 def read_text_from_file(file, encoding):
     """Reads text from file with encoding.
 
     Assumes Windows line endings for compatibility with Foobar2000's tag viewer."""
     with file.open(encoding=encoding, newline='\r\n') as handle:
         return handle.read()
+
 
 def map_disc_numbers_to_file_contents(files, encoding):
     """Maps the disc numbers of files to their contents
@@ -45,6 +48,7 @@ def map_disc_numbers_to_file_contents(files, encoding):
 
     return disc_numbers_to_file_contents
 
+
 def map_disc_numbers_to_values_map(files, encoding):
     """Gets a map mapping file disc numbers to appropriates values, usually file contents."""
     files = list(files)
@@ -58,6 +62,7 @@ def map_disc_numbers_to_values_map(files, encoding):
 
     return tag_map
 
+
 def apply_disc_specific_tag(path, music_file, disc_mapping, tag):
     """Applies the appropriate disc-specific mapping to music_files's tag, if one exists"""
     disc_number = music_file['discnumber'][0]
@@ -67,6 +72,7 @@ def apply_disc_specific_tag(path, music_file, disc_mapping, tag):
         return True
 
     return False
+
 
 # TODO: Make this in to a library function reusable by all scripts
 def save_atomically(path, music_file):
@@ -140,5 +146,6 @@ def main():
         # Save changes
         if cue_changed or log_changed:
             save_atomically(file, music_file)
+
 
 main()
