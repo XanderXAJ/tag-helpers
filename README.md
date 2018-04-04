@@ -9,3 +9,4 @@ Run `./setup-python.sh`.
 # TODO
 
 - If cue/log already match tag, do not re-write file.
+- Handle multiple directories natively (instead of needing to be used with `find`)
