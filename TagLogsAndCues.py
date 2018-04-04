@@ -100,10 +100,8 @@ def save_atomically(path, music_file):
             music_file.save(temp_file)
     except (KeyboardInterrupt, SystemExit):
         logging.critical("Interrupt received, stopping...")
-        music_file.close()
         sys.exit(1)
     except BrokenPipeError:
-        music_file.close()
         sys.exit(1)
 
 
