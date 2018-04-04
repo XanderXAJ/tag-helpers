@@ -13,6 +13,7 @@ import sys
 
 from atomicwrites import atomic_write
 import mutagen
+from bs4 import UnicodeDammit
 
 # Case-insensitive disc-matching regex
 DISC_NUMBER_REGEX = re.compile(r'(?i)\Wdisc (?P<disc>[0-9]+)\W')
@@ -33,7 +34,7 @@ def read_text_from_file(file, encoding):
 
     Assumes Windows line endings for compatibility with Foobar2000's tag viewer."""
     with file.open(encoding=encoding, newline='\r\n') as handle:
-        return handle.read()
+        return UnicodeDammit(handle.read()).unicode_markup
 
 
 def map_disc_numbers_to_file_contents(files, encoding):
@@ -110,11 +111,14 @@ def main():
     """Main entrypoint"""
     # Parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cue_encoding', default='Windows-1252')
     parser.add_argument('--log_level', help='Set logging level', default='WARNING',
                         choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'])
     parser.add_argument('-e', '--extension', default='flac')
-    parser.add_argument('--log-encoding', default='utf-16')
+
+    # latin_1 seems to work well with UnicodeDammit and not throw encoding errors
+    parser.add_argument('--cue_encoding', default='latin_1')
+    parser.add_argument('--log-encoding', default='latin_1')
+
     parser.add_argument('music_path')
     args = parser.parse_args()
 
