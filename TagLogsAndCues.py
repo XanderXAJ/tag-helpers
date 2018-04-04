@@ -14,7 +14,8 @@ import sys
 from atomicwrites import atomic_write
 import mutagen
 
-DISC_NUMBER_REGEX = re.compile(r'\Wdisc (?P<disc>[0-9]+)\W')
+# Case-insensitive disc-matching regex
+DISC_NUMBER_REGEX = re.compile(r'(?i)\Wdisc (?P<disc>[0-9]+)\W')
 
 
 def find_disc_number(file):
