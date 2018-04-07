@@ -29,12 +29,15 @@ def find_disc_number(file):
     return None
 
 
-def read_text_from_file(file, encoding):
-    """Reads text from file with encoding.
+def read_text_from_file(file, encodings):
+    """Reads text from the passed file.
 
-    Assumes Windows line endings for compatibility with Foobar2000's tag viewer."""
-    with file.open(encoding=encoding, newline='\r\n') as handle:
-        return UnicodeDammit(handle.read()).unicode_markup
+    Uses Unicode, Dammit to guess the file's encoding, influenced by the passed list of encodings."""
+    with file.open(mode='br') as handle:
+        unicode = UnicodeDammit(handle.read(), encodings)
+        logging.info("%s guessed encoding: %s", file, unicode.original_encoding)
+        logging.debug(unicode.unicode_markup)
+        return unicode.unicode_markup
 
 
 def map_disc_numbers_to_file_contents(files, encoding):
@@ -122,8 +125,8 @@ def main():
     parser.add_argument('-e', '--extension', default='flac')
 
     # latin_1 seems to work well with UnicodeDammit and not throw encoding errors
-    parser.add_argument('--cue_encoding', default='latin_1')
-    parser.add_argument('--log-encoding', default='latin_1')
+    parser.add_argument('--cue_encoding', default=['windows-1252'])
+    parser.add_argument('--log-encoding', default=[])
 
     parser.add_argument('music_path')
     args = parser.parse_args()
