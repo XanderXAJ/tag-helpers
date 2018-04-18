@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Tags files with logs and cuesheets that correspond to their disc.
 
