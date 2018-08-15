@@ -1,0 +1,70 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "17a0d6dfec30d808e0bac66cd0426756fdd82a32631dc1332cf396992e9800c3"
+        },
+        "pipfile-spec": 6,
+        "requires": {
+            "python_version": "3.7"
+        },
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "atomicwrites": {
+            "hashes": [
+                "sha256:240831ea22da9ab882b551b31d4225591e5e447a68c5e188db5b89ca1d487585",
+                "sha256:a24da68318b08ac9c9c45029f4a10371ab5b20e4226738e150e6e7c571630ae6"
+            ],
+            "index": "pypi",
+            "version": "==1.1.5"
+        },
+        "beautifulsoup4": {
+            "hashes": [
+                "sha256:11a9a27b7d3bddc6d86f59fb76afb70e921a25ac2d6cc55b40d072bd68435a76",
+                "sha256:7015e76bf32f1f574636c4288399a6de66ce08fb7b2457f628a8d70c0fbabb11",
+                "sha256:808b6ac932dccb0a4126558f7dfdcf41710dd44a4ef497a0bb59a77f9f078e89"
+            ],
+            "index": "pypi",
+            "version": "==4.6.0"
+        },
+        "cchardet": {
+            "hashes": [
+                "sha256:0e7b6d8956dccffae81cd73cfad659703b68e1b762a642488b37b8fcd1b760a4",
+                "sha256:0ea55cbf777c350e0e3cd3f13676f32b18f1865c5458174cf45010d4e81e2b87",
+                "sha256:10f8c0877c7a465401a8dc3a3c93eb73fc455b9e075242dc9aff474a087177a9",
+                "sha256:2e315dd2221c60246acd12c1a9cc74d38bc42efa842c1fce75386b1f71f5e3a0",
+                "sha256:34665343d6304fd81afc1f5a9525880d19ae71fe0bcd2a461583510041443b0e",
+                "sha256:5bee513cbe4dbbee42de5fd69950c26133f3a92889d7787b34c8ac01dc9051da",
+                "sha256:6b3da8f4aa2a587b23713710abebb425583a0b1617af30271201b08f4136a332",
+                "sha256:776df64e37bd2868d2d8f85ddc8bac039bda25f14cf6f144c532e39f8d907f86",
+                "sha256:7c5bf71aae5df7360222729ed5b5f5106bcd21454042924b61a76b2d0da1b53a",
+                "sha256:8967f47d402c55c7621dda0eec5e71d7469f2f044de560252926eb3b57ec23f5",
+                "sha256:9028658dc69c87735f4af81e800a96418f88092a49123e5fc517adc03e130d6f",
+                "sha256:9a8d86713a7ff8edfff5c57541464e5716adeeba85ea2a176e7fbbb5d208ad31",
+                "sha256:a9780943fe202ebb23fa604808f1b3c76c391d962fdb385bd8e699ee6284eeee",
+                "sha256:b11c8743b8b77850da94107c4c073498feb34527fa762fbba5b567c22a301917",
+                "sha256:c5f67dc633258843e252f47d4979ad91e092d80097868bdf64d9c1cc3a3cf120",
+                "sha256:df1c5ce7c2d390423c763029056952cc9ebfae834886fcd78e2a9d01570ea5be",
+                "sha256:e174b0114185a6d2b487b5fd2a1adb18075c39c4a1dc528d02c5f2a3952321ab",
+                "sha256:f06fb13d5d9dbc2bfdad4449c216aa3a029a1762477d314d66de5736e6e853d6",
+                "sha256:f8c0e5c84b06d6b678cf2170c9a74e73bca5d6282c05617cef61928276d0aa97"
+            ],
+            "index": "pypi",
+            "version": "==2.0.0"
+        },
+        "mutagen": {
+            "hashes": [
+                "sha256:aacd667ef1f4fa7b7c201f36b2a6eda1ead3c92331017601d8082af62a7ee461"
+            ],
+            "index": "pypi",
+            "version": "==1.34.1"
+        }
+    },
+    "develop": {}
+}
