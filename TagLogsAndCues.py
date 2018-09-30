@@ -17,12 +17,12 @@ import mutagen
 from bs4 import UnicodeDammit
 
 # Case-insensitive disc-matching regex
-DISC_NUMBER_REGEX = re.compile(r'(?i)\Wdisc (?P<disc>[0-9]+)\W')
+DISC_NUMBER_REGEX = re.compile(r'(?i)disc (?P<disc>[0-9]+)')
 
 
 def find_disc_number(file):
     """Attempts to find the disc number in a file's name, returns None if none is found"""
-    match = DISC_NUMBER_REGEX.search(file.stem)
+    match = DISC_NUMBER_REGEX.search(file.name)
 
     if match is not None:
         return match.group('disc')
