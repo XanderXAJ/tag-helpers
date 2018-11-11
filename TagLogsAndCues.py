@@ -122,7 +122,7 @@ def main():
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--log_level', help='Set logging level', default='WARNING',
-                        choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'])
+                        type=str.upper, choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'])
     parser.add_argument('-e', '--extension', default='flac')
 
     # latin_1 seems to work well with UnicodeDammit and not throw encoding errors
