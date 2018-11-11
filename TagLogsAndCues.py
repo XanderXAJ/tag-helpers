@@ -36,7 +36,7 @@ def read_text_from_file(file, encodings):
     Uses Unicode, Dammit to guess the file's encoding, influenced by the passed list of encodings."""
     with file.open(mode='br') as handle:
         unicode = UnicodeDammit(handle.read(), encodings)
-        logging.info("%s guessed encoding: %s", file, unicode.original_encoding)
+        logging.debug("%s guessed encoding: %s", file, unicode.original_encoding)
         logging.debug(unicode.unicode_markup)
         return unicode.unicode_markup
 
