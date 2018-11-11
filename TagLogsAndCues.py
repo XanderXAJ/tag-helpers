@@ -49,7 +49,7 @@ def map_disc_numbers_to_file_contents(files, encoding):
 
     for file in files:
         disc_number = find_disc_number(file)
-        logging.debug("%s is for disc %s", file, disc_number)
+        logging.info("%s is for disc %s", file, disc_number)
         if disc_number is not None:
             disc_numbers_to_file_contents[disc_number] = read_text_from_file(file, encoding)
 
