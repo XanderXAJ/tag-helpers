@@ -25,7 +25,7 @@ def find_disc_number(file):
     match = DISC_NUMBER_REGEX.search(file.name)
 
     if match is not None:
-        return match.group('disc')
+        return int(match.group('disc'))
 
     return None
 
