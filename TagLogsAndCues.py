@@ -77,7 +77,7 @@ def apply_disc_specific_tag(path, music_file, disc_mapping, tag):
     if 'discnumber' not in music_file:
         return False
 
-    disc_number = music_file['discnumber'][0]
+    disc_number = int(music_file['discnumber'][0])
     if disc_number not in disc_mapping:
         logging.info('No %s entry for disc %s, skipping %s', tag, disc_number, path)
         return False
