@@ -79,14 +79,14 @@ def apply_disc_specific_tag(path, music_file, disc_mapping, tag):
 
     disc_number = music_file['discnumber'][0]
     if disc_number not in disc_mapping:
-        logging.info('Unrecognised disc %s for %s', disc_number, path)
+        logging.info('No %s entry for disc %s, skipping %s', tag, disc_number, path)
         return False
 
     if tag in music_file and music_file[tag] == [disc_mapping[disc_number]]:
-        logging.info('Disc %s %s already matches, skipping %s', disc_number, tag, path)
+        logging.info('Found matching %s for disc %s, skipping %s', tag, disc_number, path)
         return False
     else:
-        logging.info('Applying disc %s %s to %s', disc_number, tag, path)
+        logging.info('Found differing %s for disc %s, applying update to %s', tag, disc_number, path)
         music_file[tag] = [disc_mapping[disc_number]]
         return True
 
