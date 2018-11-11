@@ -154,6 +154,7 @@ def main():
 
     # Find and update music files
     for file in music_path.glob('*.{extension}'.format(extension=args.extension)):
+        logging.debug('Working on file: %s', file)
         music_file = mutagen.File(str(file), easy=True)
 
         # Apply log and cue
