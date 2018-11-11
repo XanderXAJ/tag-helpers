@@ -125,7 +125,6 @@ def main():
                         type=str.upper, choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'])
     parser.add_argument('-e', '--extension', default='flac')
 
-    # latin_1 seems to work well with UnicodeDammit and not throw encoding errors
     parser.add_argument('--cue_encoding', default=['windows-1252'])
     parser.add_argument('--log-encoding', default=[])
 
