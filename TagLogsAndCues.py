@@ -7,13 +7,13 @@ Note: It assumes one release per directory.
 import argparse
 import logging
 import os
-from pathlib import Path
 import re
 import shutil
 import sys
+from pathlib import Path
 
-from atomicwrites import atomic_write
 import mutagen
+from atomicwrites import atomic_write
 from bs4 import UnicodeDammit
 
 # Case-insensitive disc-matching regex
@@ -89,7 +89,6 @@ def apply_disc_specific_tag(path, music_file, disc_mapping, tag):
         logging.info('Applying disc %s %s to %s', disc_number, tag, path)
         music_file[tag] = [disc_mapping[disc_number]]
         return True
-
 
 
 # TODO: Make this in to a library function reusable by all scripts
