@@ -65,7 +65,7 @@ def map_disc_numbers_to_values_map(files, encoding):
         # There is only one file and it did not feature a disc number in the name,
         # therefore assume it is disc 1 of a single-disc release
         logging.info('Only one file with no obvious disc number, assuming single-disc release: %s', files)
-        tag_map = {'1': read_text_from_file(files[0], encoding)}
+        tag_map = {1: read_text_from_file(files[0], encoding)}
 
     return tag_map
 
