@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "tag-helpers"
+version = "0.1.0"
+description = ""
+authors = ["Alex Palmer <XanderXAJ@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "tag_helpers"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+mutagen = "^1.46.0"
+atomicwrites = "^1.4.1"
+beautifulsoup4 = "^4.11.1"
+cchardet = "^2.1.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
