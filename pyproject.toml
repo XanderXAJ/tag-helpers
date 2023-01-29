@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["Alex Palmer <XanderXAJ@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{include = "tag_helpers"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
