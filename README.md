@@ -2,9 +2,17 @@
 
 Python scripts to help with tagging music files.
 
-# Installation
+## Installation
 
-Run `./setup-python.sh`.
+This project is managed with Poetry.
+
+```shell
+poetry install
+```
+
+## Usage
+
+Use `poetry run` to run the command you want.
 
 # TODO
 
