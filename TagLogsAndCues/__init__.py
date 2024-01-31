@@ -17,7 +17,7 @@ from atomicwrites import atomic_write
 from bs4 import UnicodeDammit
 
 # Case-insensitive disc-matching regex
-DISC_NUMBER_REGEX = re.compile(r'(?i)(?:dis[ck]|cd) ?(?P<disc>[0-9]+)')
+DISC_NUMBER_REGEX = re.compile(r"(?i)(?:dis[ck]|cd) ?(?P<disc>[0-9]+)")
 
 
 def find_disc_number(file):
@@ -25,7 +25,7 @@ def find_disc_number(file):
     match = DISC_NUMBER_REGEX.search(file.name)
 
     if match is not None:
-        return int(match.group('disc'))
+        return int(match.group("disc"))
 
     return None
 
@@ -33,8 +33,9 @@ def find_disc_number(file):
 def read_text_from_file(file, encodings):
     """Reads text from the passed file.
 
-    Uses Unicode, Dammit to guess the file's encoding, influenced by the passed list of encodings."""
-    with file.open(mode='br') as handle:
+    Uses Unicode, Dammit to guess the file's encoding, influenced by the passed list of encodings.
+    """
+    with file.open(mode="br") as handle:
         unicode = UnicodeDammit(handle.read(), encodings)
         logging.debug("%s guessed encoding: %s", file, unicode.original_encoding)
         logging.debug(unicode.unicode_markup)
@@ -51,7 +52,9 @@ def map_disc_numbers_to_file_contents(files, encoding):
         disc_number = find_disc_number(file)
         logging.info("%s is for disc %s", file, disc_number)
         if disc_number is not None:
-            disc_numbers_to_file_contents[disc_number] = read_text_from_file(file, encoding)
+            disc_numbers_to_file_contents[disc_number] = read_text_from_file(
+                file, encoding
+            )
 
     return disc_numbers_to_file_contents
 
@@ -64,7 +67,10 @@ def map_disc_numbers_to_values_map(files, encoding):
     if len(list(files)) == 1 and len(tag_map) == 0:
         # There is only one file and it did not feature a disc number in the name,
         # therefore assume it is disc 1 of a single-disc release
-        logging.info('Only one file with no obvious disc number, assuming single-disc release: %s', files)
+        logging.info(
+            "Only one file with no obvious disc number, assuming single-disc release: %s",
+            files,
+        )
         tag_map = {1: read_text_from_file(files[0], encoding)}
 
     return tag_map
@@ -74,19 +80,26 @@ def apply_disc_specific_tag(path, music_file, disc_mapping, tag):
     """Applies the appropriate disc-specific mapping to music_files's tag, if one exists.
 
     Returns Boolean of whether a modification was applied."""
-    if 'discnumber' not in music_file:
+    if "discnumber" not in music_file:
         return False
 
-    disc_number = int(music_file['discnumber'][0])
+    disc_number = int(music_file["discnumber"][0])
     if disc_number not in disc_mapping:
-        logging.info('No %s entry for disc %s, skipping %s', tag, disc_number, path)
+        logging.info("No %s entry for disc %s, skipping %s", tag, disc_number, path)
         return False
 
     if tag in music_file and music_file[tag] == [disc_mapping[disc_number]]:
-        logging.info('Found matching %s for disc %s, skipping %s', tag, disc_number, path)
+        logging.info(
+            "Found matching %s for disc %s, skipping %s", tag, disc_number, path
+        )
         return False
     else:
-        logging.info('Found differing %s for disc %s, applying update to %s', tag, disc_number, path)
+        logging.info(
+            "Found differing %s for disc %s, applying update to %s",
+            tag,
+            disc_number,
+            path,
+        )
         music_file[tag] = [disc_mapping[disc_number]]
         return True
 
@@ -100,9 +113,9 @@ def save_atomically(path, music_file):
         # (and probably corrupt state).  To minimise the chances of this, copy
         # contents to a temp file and swap the original and temp files as atomically
         # as possible on the platform. Atomic Writes performs the swap.
-        with atomic_write(str(path), overwrite=True, mode='w+b') as temp_file:
+        with atomic_write(str(path), overwrite=True, mode="w+b") as temp_file:
             # Copy original file in to temp file
-            with open(str(path), 'rb') as orig_file:
+            with open(str(path), "rb") as orig_file:
                 shutil.copyfileobj(orig_file, temp_file)
 
             # Seek back to beginning of file
@@ -121,49 +134,57 @@ def main():
     """Main entrypoint"""
     # Parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--log_level', help='Set logging level', default='WARNING',
-                        type=str.upper, choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'])
-    parser.add_argument('-e', '--extension', default='flac')
+    parser.add_argument(
+        "--log_level",
+        help="Set logging level",
+        default="WARNING",
+        type=str.upper,
+        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
+    )
+    parser.add_argument("-e", "--extension", default="flac")
 
-    parser.add_argument('--cue_encoding', default=['windows-1252'])
-    parser.add_argument('--log-encoding', default=[])
+    parser.add_argument("--cue_encoding", default=["windows-1252"])
+    parser.add_argument("--log-encoding", default=[])
 
-    parser.add_argument('music_path')
+    parser.add_argument("music_path")
     args = parser.parse_args()
 
     # Set logging level
     logging.basicConfig(level=logging.getLevelName(args.log_level))
 
     music_path = Path(args.music_path)
-    logging.info('Starting: %s', music_path)
+    logging.info("Starting: %s", music_path)
     if not music_path.is_dir():
-        logging.error('music_path is not a directory or does not exist: %s', music_path)
+        logging.error("music_path is not a directory or does not exist: %s", music_path)
         sys.exit(1)
 
     # Find LOGs
     disc_numbers_to_logs = map_disc_numbers_to_values_map(
-        music_path.glob('*.log'),
-        args.log_encoding
+        music_path.glob("*.log"), args.log_encoding
     )
 
     # Find CUEs
     disc_numbers_to_cues = map_disc_numbers_to_values_map(
-        music_path.glob('*.cue'),
-        args.cue_encoding
+        music_path.glob("*.cue"), args.cue_encoding
     )
 
     # Find and update music files
-    for file in music_path.glob('*.{extension}'.format(extension=args.extension)):
-        logging.debug('Working on file: %s', file)
+    for file in music_path.glob("*.{extension}".format(extension=args.extension)):
+        logging.debug("Working on file: %s", file)
         music_file = mutagen.File(str(file), easy=True)
 
         # Apply log and cue
-        cue_changed = apply_disc_specific_tag(file, music_file, disc_numbers_to_cues, 'cue')
-        log_changed = apply_disc_specific_tag(file, music_file, disc_numbers_to_logs, 'log')
+        cue_changed = apply_disc_specific_tag(
+            file, music_file, disc_numbers_to_cues, "cue"
+        )
+        log_changed = apply_disc_specific_tag(
+            file, music_file, disc_numbers_to_logs, "log"
+        )
 
         # Save changes
         if cue_changed or log_changed:
             save_atomically(file, music_file)
 
 
-main()
+if __name__ == "__main__":
+    main()

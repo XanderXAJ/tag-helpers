@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["Alex Palmer <XanderXAJ@users.noreply.github.com>"]
 readme = "README.md"
+packages = [
+	{ include = "TagLogsAndCues" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -11,6 +14,8 @@ mutagen = "^1.46.0"
 atomicwrites = "^1.4.1"
 beautifulsoup4 = "^4.11.1"
 
+[tool.poetry.scripts]
+TagLogsAndCues = "TagLogsAndCues:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
