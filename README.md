@@ -24,9 +24,13 @@ This project is managed with Poetry:
 poetry install
 ```
 
-### Development Usage
+### Test installation
 
-Use `poetry run` to run the command you want.
+`poetry install` installs commands defined in [pyproject.toml](./pyproject.toml)'s `[tool.poetry.scripts]` in its virtualenv, allowing for testing of the standalone command:
+
+```shell
+poetry install && poetry run TagLogsAndCues
+```
 
 ## TODO
 
