@@ -130,46 +130,21 @@ def save_atomically(path, music_file):
         sys.exit(1)
 
 
-def main():
-    """Main entrypoint"""
-    # Parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--log_level",
-        help="Set logging level",
-        default="WARNING",
-        type=str.upper,
-        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
-    )
-    parser.add_argument("-e", "--extension", default="flac")
-
-    parser.add_argument("--cue_encoding", default=["windows-1252"])
-    parser.add_argument("--log-encoding", default=[])
-
-    parser.add_argument("music_path")
-    args = parser.parse_args()
-
-    # Set logging level
-    logging.basicConfig(level=logging.getLevelName(args.log_level))
-
-    music_path = Path(args.music_path)
-    logging.info("Starting: %s", music_path)
-    if not music_path.is_dir():
-        logging.error("music_path is not a directory or does not exist: %s", music_path)
-        sys.exit(1)
+def process_directory(path: Path, args):
+    logging.info("Processing: %s", path)
 
     # Find LOGs
     disc_numbers_to_logs = map_disc_numbers_to_values_map(
-        music_path.glob("*.log"), args.log_encoding
+        path.glob("*.log"), args.log_encoding
     )
 
     # Find CUEs
     disc_numbers_to_cues = map_disc_numbers_to_values_map(
-        music_path.glob("*.cue"), args.cue_encoding
+        path.glob("*.cue"), args.cue_encoding
     )
 
     # Find and update music files
-    for file in music_path.glob("*.{extension}".format(extension=args.extension)):
+    for file in path.glob("*.{extension}".format(extension=args.extension)):
         logging.debug("Working on file: %s", file)
         music_file = mutagen.File(str(file), easy=True)
 
@@ -184,6 +159,40 @@ def main():
         # Save changes
         if cue_changed or log_changed:
             save_atomically(file, music_file)
+
+
+def main():
+    """Main entrypoint"""
+    # Parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--log_level",
+        help="Set logging level",
+        default="WARNING",
+        type=str.upper,
+        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
+    )
+    parser.add_argument("-e", "--extension", default="flac")
+    parser.add_argument("-R", "--recursive", action="store_true")
+
+    parser.add_argument("--cue_encoding", default=["windows-1252"])
+    parser.add_argument("--log-encoding", default=[])
+
+    parser.add_argument("music_path")
+    args = parser.parse_args()
+
+    # Set logging level
+    logging.basicConfig(level=logging.getLevelName(args.log_level))
+
+    music_path = Path(args.music_path)
+    if not music_path.is_dir():
+        logging.error("music_path is not a directory or does not exist: %s", music_path)
+        sys.exit(1)
+
+    for root, dirs, files in music_path.walk(follow_symlinks=True):
+        process_directory(root, args)
+        if not args.recursive:
+            break
 
 
 if __name__ == "__main__":
