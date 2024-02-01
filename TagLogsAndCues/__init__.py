@@ -158,6 +158,9 @@ def process_directory(path: Path, args):
 
         # Save changes
         if cue_changed or log_changed:
+            # It's probably a CD
+            music_file["source"] = ["CD"]
+
             save_atomically(file, music_file)
 
 
