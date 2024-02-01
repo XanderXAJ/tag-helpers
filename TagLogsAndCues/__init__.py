@@ -166,7 +166,7 @@ def main():
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--log_level",
+        "--log-level",
         help="Set logging level",
         default="WARNING",
         type=str.upper,
@@ -175,7 +175,7 @@ def main():
     parser.add_argument("-e", "--extension", default="flac")
     parser.add_argument("-R", "--recursive", action="store_true")
 
-    parser.add_argument("--cue_encoding", default=["windows-1252"])
+    parser.add_argument("--cue-encoding", default=["windows-1252"])
     parser.add_argument("--log-encoding", default=[])
 
     parser.add_argument("music_path")
