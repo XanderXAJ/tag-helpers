@@ -10,11 +10,10 @@ Clone the repo, then install using `pipx`:
 pipx install ./
 ```
 
-When updating (especially during development when the version number may not change), you may need to remove the existing virtualenv and then install a new one:
+When updating (especially during development when the version number may not change), you may need to reinstall:
 
 ```shell
-pipx uninstall tag-helpers
-pipx install ./
+pipx reinstall tag-helpers
 ```
 
 ## Usage
