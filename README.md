@@ -40,5 +40,6 @@ poetry install && poetry run TagLogsAndCues
 
 ## TODO
 
+- Skip[ directory if no cue or log files found]
 - Deal with disc/track tags that also include the total, e.g. `1/1`, `01/02`, `3/10`
 - Appropriately handle UTF-16 files (or convert those files to UTF-8)
