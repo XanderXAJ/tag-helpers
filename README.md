@@ -4,7 +4,7 @@ Python scripts to help with tagging music files.
 
 ## Installation
 
-Clone the repo, then install using `pipx`:
+Clone the repo, then install [using `pipx`](https://github.com/pypa/pipx):
 
 ```shell
 pipx install ./
@@ -15,6 +15,10 @@ When updating (especially during development when the version number may not cha
 ```shell
 pipx reinstall tag-helpers
 ```
+
+### Troubleshooting `pipx`
+
+If you've just installed `pipx` and can't get it working properly -- possibly because you've updated or changed Python installations while doing so -- delete your `~/.local/pipx` directory and try again.
 
 ## Usage
 
