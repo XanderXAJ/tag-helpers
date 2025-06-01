@@ -187,6 +187,14 @@ def main():
     # Set logging level
     logging.basicConfig(level=logging.getLevelName(args.log_level))
 
+    # Log configuration
+    logging.debug("Configuration:")
+    logging.debug("  log_level: %s", args.log_level)
+    logging.debug("  extension: %s", args.extension)
+    logging.debug("  recursive: %s", args.recursive)
+    logging.debug("  cue_encoding: %s", args.cue_encoding)
+    logging.debug("  log_encoding: %s", args.log_encoding)
+
     music_path = Path(args.music_path)
     if not music_path.is_dir():
         logging.error("music_path is not a directory or does not exist: %s", music_path)
