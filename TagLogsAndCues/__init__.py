@@ -179,7 +179,7 @@ def main():
     parser.add_argument("-R", "--recursive", action="store_true")
 
     parser.add_argument(
-        "-c", "--cue-encoding", action="append", default=["windows-1252"]
+        "-c", "--cue-encoding", action="append", default=["windows-1252", "shift_jis"]
     )
     parser.add_argument("-l", "--log-encoding", action="append", default=[])
 
