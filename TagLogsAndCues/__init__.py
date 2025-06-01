@@ -188,14 +188,19 @@ def main():
     logging.basicConfig(level=logging.getLevelName(args.log_level))
 
     # Log configuration
-    logging.debug("Configuration:")
-    logging.debug("  log_level: %s", args.log_level)
-    logging.debug("  extension: %s", args.extension)
-    logging.debug("  recursive: %s", args.recursive)
-    logging.debug("  cue_encoding: %s", args.cue_encoding)
-    logging.debug("  log_encoding: %s", args.log_encoding)
+    logging.info("Configuration:")
+    logging.info("  log_level: %s", args.log_level)
+    logging.info("  extension: %s", args.extension)
+    logging.info("  recursive: %s", args.recursive)
+    logging.info("  cue_encoding: %s", args.cue_encoding)
+    logging.info("  log_encoding: %s", args.log_encoding)
 
     music_path = Path(args.music_path)
+    logging.debug("music_path: %s", music_path)
+    logging.debug("music_path.exists: %s", music_path.exists())
+    logging.debug("music_path.is_dir: %s", music_path.is_dir())
+    logging.debug("music_path.is_junction: %s", music_path.is_junction())
+
     if not music_path.is_dir():
         logging.error("music_path is not a directory or does not exist: %s", music_path)
         sys.exit(1)
