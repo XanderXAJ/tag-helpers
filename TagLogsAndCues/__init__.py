@@ -178,8 +178,10 @@ def main():
     parser.add_argument("-e", "--extension", default="flac")
     parser.add_argument("-R", "--recursive", action="store_true")
 
-    parser.add_argument("--cue-encoding", default=["windows-1252"])
-    parser.add_argument("--log-encoding", default=[])
+    parser.add_argument(
+        "-c", "--cue-encoding", action="append", default=["windows-1252"]
+    )
+    parser.add_argument("-l", "--log-encoding", action="append", default=[])
 
     parser.add_argument("music_path")
     args = parser.parse_args()
