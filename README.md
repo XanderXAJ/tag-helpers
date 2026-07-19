@@ -4,42 +4,53 @@ Python scripts to help with tagging music files.
 
 ## Installation
 
-Clone the repo, then install [using `pipx`](https://github.com/pypa/pipx):
+This project is managed with [`uv`](https://docs.astral.sh/uv/), which bootstraps its own Python -- no existing Python installation is required.
 
 ```shell
-pipx install ./
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv tool install git+https://github.com/XanderXAJ/tag-helpers
 ```
 
-When updating (especially during development when the version number may not change), you may need to reinstall:
+To install from a local clone instead:
 
 ```shell
-pipx reinstall tag-helpers
+uv tool install ./
 ```
 
-### Troubleshooting `pipx`
+To update:
 
-If you've just installed `pipx` and can't get it working properly -- possibly because you've updated or changed Python installations while doing so -- delete your `~/.local/pipx` directory and try again.
+```shell
+uv tool upgrade tag-helpers
+```
+
+During development the version number may not change, in which case force a reinstall:
+
+```shell
+uv tool install --reinstall ./
+```
 
 ## Usage
 
-The following comamnds are installed:
+The following commands are installed:
 
 - `TagLogsAndCues`: Tags music files with `*.log` and `*.cue` files in their `LOG` and `CUE` metadata fields respectively
+- `manageTags`: Runs selected tag operations (e.g. `ALBUM ARTIST` -> `ALBUMARTIST` migration, removing playback statistics) over a file or directory
+- `printTags`: Pretty prints tags for all FLAC files under a given path
 
 ## Development
 
-This project is managed with Poetry:
-
 ```shell
-poetry install
+uv sync
 ```
 
 ### Test installation
 
-`poetry install` installs commands defined in [pyproject.toml](./pyproject.toml)'s `[tool.poetry.scripts]` in its virtualenv, allowing for testing of the standalone command:
+`uv sync` installs the commands defined in [pyproject.toml](./pyproject.toml)'s `[project.scripts]` into the project virtualenv, allowing the standalone commands to be tested:
 
 ```shell
-poetry install && poetry run TagLogsAndCues
+uv run TagLogsAndCues
+uv run manageTags
+uv run printTags
 ```
 
 ## TODO

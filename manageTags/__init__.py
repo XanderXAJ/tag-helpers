@@ -102,56 +102,57 @@ def files_requiring_operations(paths, operations):
 
 ######
 
-# Parse arguments
-parser = argparse.ArgumentParser()
-parser.add_argument('-o', '--operation', choices=operation_library, action='append')
-parser.add_argument('-e', '--extension', default='flac')
-parser.add_argument('music_path')
-args = parser.parse_args()
+def main():
+    # Parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-o', '--operation', choices=operation_library, action='append')
+    parser.add_argument('-e', '--extension', default='flac')
+    parser.add_argument('music_path')
+    args = parser.parse_args()
 
-# Quit immediately if no operations are to be performed
-if args.operation == None:
-    parser.error('No operations to perform')
+    # Quit immediately if no operations are to be performed
+    if args.operation == None:
+        parser.error('No operations to perform')
 
-operations_to_perform = [operation_library.get(x) for x in args.operation]
+    operations_to_perform = [operation_library.get(x) for x in args.operation]
 
-# Stop if music_path does not exist
-music_path = Path(args.music_path)
-if music_path.is_dir():
-    files = files_requiring_operations(music_path.glob('**/*.{extension}'.format(extension=args.extension)), operations_to_perform)
-elif music_path.is_file():
-    files = files_requiring_operations([music_path], operations_to_perform)
-else:
-    print('music_path does not exist', file=sys.stderr)
-    exit(1)
+    # Stop if music_path does not exist
+    music_path = Path(args.music_path)
+    if music_path.is_dir():
+        files = files_requiring_operations(music_path.glob('**/*.{extension}'.format(extension=args.extension)), operations_to_perform)
+    elif music_path.is_file():
+        files = files_requiring_operations([music_path], operations_to_perform)
+    else:
+        print('music_path does not exist', file=sys.stderr)
+        exit(1)
 
-# Modify files as needed
-for (path, file) in files:
-    try:
-        print('Operating on', path)
+    # Modify files as needed
+    for (path, file) in files:
+        try:
+            print('Operating on', path)
 
-        for operation in operations_to_perform:
-            operation.safe_execute(file)
+            for operation in operations_to_perform:
+                operation.safe_execute(file)
 
-        # Mutagen writes directly to the file in question.  If something should go
-        # wrong (e.g. power failure, shutdown), the file would be left in an undefined
-        # (and probably corrupt) state.  To minimise the chances of this, copy
-        # contents to a temp file and swap the original and temp files as atomically
-        # as possible on the platform. Atomic Writes performs the swap.
-        with atomic_write(str(path), overwrite=True, mode='w+b') as temp_file:
-            # Copy original file in to temp file
-            with open(str(path), 'rb') as orig_file:
-                shutil.copyfileobj(orig_file, temp_file)
+            # Mutagen writes directly to the file in question.  If something should go
+            # wrong (e.g. power failure, shutdown), the file would be left in an undefined
+            # (and probably corrupt) state.  To minimise the chances of this, copy
+            # contents to a temp file and swap the original and temp files as atomically
+            # as possible on the platform. Atomic Writes performs the swap.
+            with atomic_write(str(path), overwrite=True, mode='w+b') as temp_file:
+                # Copy original file in to temp file
+                with open(str(path), 'rb') as orig_file:
+                    shutil.copyfileobj(orig_file, temp_file)
 
-            # Seek back to beginning of file
-            temp_file.seek(0, os.SEEK_SET)
+                # Seek back to beginning of file
+                temp_file.seek(0, os.SEEK_SET)
 
-            # Write modifications to temp file
-            file.save(temp_file)
-    except (KeyboardInterrupt, SystemExit):
-        print("Interrupt received, stopping...", file=sys.stderr)
-        file.close()
-        sys.exit(1)
-    except BrokenPipeError:
-        file.close()
-        sys.exit(1)
+                # Write modifications to temp file
+                file.save(temp_file)
+        except (KeyboardInterrupt, SystemExit):
+            print("Interrupt received, stopping...", file=sys.stderr)
+            file.close()
+            sys.exit(1)
+        except BrokenPipeError:
+            file.close()
+            sys.exit(1)
