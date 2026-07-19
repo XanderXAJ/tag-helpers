@@ -21,22 +21,28 @@ This is a behaviour-preserving refactor apart from the deliberate changes listed
 ```
 tag-helpers print    <path> [-e EXT] [--dry-run]
 tag-helpers manage   <path> -o OPERATION [-o ...] [-e EXT] [--dry-run]
-tag-helpers tag-logs <path> [-e EXT] [-R] [-c ENC ...] [-l ENC ...] [--dry-run]
+tag-helpers tag-logs-and-cues <path> [-e EXT] [-R] [-c ENC ...] [-l ENC ...] [--dry-run]
 ```
 
 A parent parser supplies `music_path`, `-e/--extension` (default `flac`) and
 `--dry-run` to every subcommand. Subcommand-specific flags stay local: `-R/--recursive`,
-`-c/--cue-encoding` and `-l/--log-encoding` on `tag-logs`; `-o/--operation` on `manage`.
+`-c/--cue-encoding` and `-l/--log-encoding` on `tag-logs-and-cues`; `-o/--operation` on `manage`.
 
 `--dry-run` is a no-op for `print`, which is read-only. It is accepted there anyway so
 the flag is uniform across subcommands.
+
+`print` and `manage` are short verbs; `tag-logs-and-cues` deliberately is not. No concise
+term covers logs and cuesheets together — "sidecars" and "rip files" were both considered
+and rejected as either imprecise or requiring new vocabulary — and a shorter name such as
+`tag-logs` would misrepresent the command, which writes `CUE` tags as well as `LOG` ones.
+Naming it in full is preferred over naming it inaccurately.
 
 ### Breaking changes
 
 Accepted deliberately — a clean break, no aliases or deprecation period.
 
 - The `TagLogsAndCues`, `manageTags` and `printTags` console scripts are removed.
-  Callers move to `tag-helpers tag-logs|manage|print`.
+  Callers move to `tag-helpers tag-logs-and-cues|manage|print`.
 - `manage` operation names become kebab-case to match the command style:
   `album_artist_migration` → `album-artist-migration`, and likewise for
   `album-artist-reduction`, `print-tags`, `remove-fb2k-playback-statistics`,
@@ -56,8 +62,8 @@ tag_helpers/
   tagfile.py        # load + atomic save; the dry-run choke point
   print_tags.py     # run(args)
   manage_tags.py    # run(args) — discovery, dispatch to operations
-  operations.py     # Operation library (manage-internal)
-  tag_logs.py       # run(args) — directory-scoped; owns encoding detection
+  operations.py          # Operation library (manage-internal)
+  tag_logs_and_cues.py   # run(args) — directory-scoped; owns encoding detection
 ```
 
 `pyproject.toml` exposes a single script, `tag-helpers = "tag_helpers.cli:main"`, and
@@ -72,7 +78,7 @@ the builtin at any import site.
 
 The commands do not share a unit of work, and this drives the module split.
 
-`print` and `manage` are **per-file**: walk the tree, load, act, maybe save. `tag-logs`
+`print` and `manage` are **per-file**: walk the tree, load, act, maybe save. `tag-logs-and-cues`
 is **per-directory** — it assumes one release per directory, globs sibling `.log` and
 `.cue` files, matches disc numbers, then writes the result into every track in that
 directory. Its input is a directory's contents; its output is a batch of files.
@@ -81,15 +87,15 @@ Two unifications are therefore explicitly rejected:
 
 - **No shared file discovery.** A common `find_files()` would have to serve both
   "walk recursively for `*.flac`" and "enumerate a release directory plus its logs and
-  cues" — different return shapes and different recursion semantics. `-R` on `tag-logs`
+  cues" — different return shapes and different recursion semantics. `-R` on `tag-logs-and-cues`
   does not mean what a plain recursive glob means. Each command owns its own discovery.
-- **`Operation` is not extended to cover `tag-logs`.** `Operation.check(file)` /
+- **`Operation` is not extended to cover `tag-logs-and-cues`.** `Operation.check(file)` /
   `execute(file)` is per-file by construction; a directory-scoped, multi-input job would
   need context the interface does not model. `Operation` stays a `manage` concept and
   lives in `operations.py`, imported only by `manage_tags`.
 
 What genuinely crosses the boundary is one thing: safely writing a mutagen file. Both
-`manage` and `tag_logs` perform the identical atomic-write sequence today. `tagfile.py`
+`manage` and `tag_logs_and_cues` perform the identical atomic-write sequence today. `tagfile.py`
 owns it, and is the single choke point where `--dry-run` is enforced — so no command can
 forget to honour it.
 
@@ -98,7 +104,7 @@ are most of the current 158 lines), not because anything else consumes it. The i
 direction is one-way: `manage_tags → operations`.
 
 No command module imports another. `print_tags` depends on mutagen only; `manage_tags`
-on `operations` and `tagfile`; `tag_logs` on `tagfile` and `bs4`.
+on `operations` and `tagfile`; `tag_logs_and_cues` on `tagfile` and `bs4`.
 
 ## Testing
 
@@ -108,9 +114,9 @@ so operations can be tested against plain dict stubs.
 
 ```
 tests/
-  test_tag_logs.py    # find_disc_number, read_text_from_file
-  test_operations.py  # each Operation's check/execute against dict stubs
-  test_cli.py         # each subcommand parses to the expected args; dry-run
+  test_tag_logs_and_cues.py  # find_disc_number, read_text_from_file
+  test_operations.py         # each Operation's check/execute against dict stubs
+  test_cli.py                # each subcommand parses to the expected args; dry-run
 ```
 
 `pytest` is added as a dev dependency. End-to-end verification against a real music
