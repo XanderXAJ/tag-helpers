@@ -14,9 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-TagLogsAndCues = "TagLogsAndCues:main"
-manageTags = "manageTags:main"
-printTags = "printTags:main"
+tag-helpers = "tag_helpers.cli:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -24,9 +22,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = [
-	"TagLogsAndCues",
-	"manageTags",
-	"printTags",
+	"tag_helpers",
 ]
 
 [dependency-groups]

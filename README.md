@@ -31,11 +31,20 @@ uv tool install --reinstall ./
 
 ## Usage
 
-The following commands are installed:
+A single `tag-helpers` command is installed, with three subcommands:
 
-- `TagLogsAndCues`: Tags music files with `*.log` and `*.cue` files in their `LOG` and `CUE` metadata fields respectively
-- `manageTags`: Runs selected tag operations (e.g. `ALBUM ARTIST` -> `ALBUMARTIST` migration, removing playback statistics) over a file or directory
-- `printTags`: Pretty prints tags for all FLAC files under a given path
+- `tag-helpers tag-logs-and-cues`: Tags music files with `*.log` and `*.cue` files in their `LOG` and `CUE` metadata fields respectively
+- `tag-helpers manage`: Runs selected tag operations (e.g. `ALBUM ARTIST` -> `ALBUMARTIST` migration, removing playback statistics) over a file or directory
+- `tag-helpers print`: Pretty prints tags for all matching music files under a given path
+
+All subcommands accept a path, `-e/--extension` (default `flac`) and `--log-level`.
+
+If you previously installed the separate `TagLogsAndCues`, `manageTags` and `printTags`
+commands, reinstall to replace them:
+
+```shell
+uv tool install --reinstall git+https://github.com/XanderXAJ/tag-helpers
+```
 
 ## Development
 
@@ -48,9 +57,18 @@ uv sync
 `uv sync` installs the commands defined in [pyproject.toml](./pyproject.toml)'s `[project.scripts]` into the project virtualenv, allowing the standalone commands to be tested:
 
 ```shell
-uv run TagLogsAndCues
-uv run manageTags
-uv run printTags
+uv run tag-helpers --help
+uv run tag-helpers print --help
+```
+
+Note that `uv run <command>` falls back to any command of that name on your `PATH`, so a
+previously installed copy can mask the project virtualenv's. `which -a tag-helpers` will
+show which is being picked up.
+
+### Tests
+
+```shell
+uv run pytest
 ```
 
 ## TODO
