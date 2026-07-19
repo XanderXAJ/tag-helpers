@@ -1,4 +1,5 @@
 """Runs selected tag operations over a file or directory."""
+
 import sys
 from pathlib import Path
 
@@ -22,17 +23,17 @@ def run(args):
     # Stop if music_path does not exist
     music_path = Path(args.music_path)
     if music_path.is_dir():
-        paths = music_path.glob('**/*.{extension}'.format(extension=args.extension))
+        paths = music_path.glob("**/*.{extension}".format(extension=args.extension))
     elif music_path.is_file():
         paths = [music_path]
     else:
-        print('music_path does not exist', file=sys.stderr)
+        print("music_path does not exist", file=sys.stderr)
         sys.exit(1)
 
     # Modify files as needed
-    for (path, file) in files_requiring_operations(paths, operations_to_perform):
+    for path, file in files_requiring_operations(paths, operations_to_perform):
         try:
-            print('Operating on', path)
+            print("Operating on", path)
 
             for operation in operations_to_perform:
                 operation.safe_execute(file)

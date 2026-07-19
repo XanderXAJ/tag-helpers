@@ -102,13 +102,18 @@ def stub_tagfile(monkeypatch, music_file):
 
 def directory_args(**overrides):
     defaults = dict(
-        extension="flac", recursive=False, cue_encoding=["utf-8"], log_encoding=["utf-8"]
+        extension="flac",
+        recursive=False,
+        cue_encoding=["utf-8"],
+        log_encoding=["utf-8"],
     )
     defaults.update(overrides)
     return argparse.Namespace(**defaults)
 
 
-def test_process_directory_applies_log_and_cue_and_marks_source_as_cd(tmp_path, monkeypatch):
+def test_process_directory_applies_log_and_cue_and_marks_source_as_cd(
+    tmp_path, monkeypatch
+):
     """The 'It's probably a CD' comment: a applied log or cue implies SOURCE=CD."""
     make_release(tmp_path)
     music_file = {"discnumber": ["1"]}

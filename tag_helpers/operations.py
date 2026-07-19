@@ -23,27 +23,28 @@ class AlbumArtistMigrationOperation(Operation):
     """Checks and performs ALBUM ARTIST -> ALBUMARTIST migration"""
 
     def check(self, file):
-        return 'ALBUM ARTIST' in file
+        return "ALBUM ARTIST" in file
 
     def execute(self, file):
-        file['ALBUMARTIST'] = file['ALBUM ARTIST']
-        del file['ALBUM ARTIST']
+        file["ALBUMARTIST"] = file["ALBUM ARTIST"]
+        del file["ALBUM ARTIST"]
 
 
 class AlbumArtistReductionOperation(Operation):
     """Reduces ALBUM ARTIST/ALBUMARTIST to 'Various'"""
 
     def check(self, file):
-        for tag in ['ALBUMARTIST', 'ALBUM ARTIST']:
+        for tag in ["ALBUMARTIST", "ALBUM ARTIST"]:
             if tag in file:
                 album_artists = list(map(str.lower, file[tag]))
-                if (len(album_artists) > 1
-                        and ('various' in album_artists or 'various artists' in album_artists)):
+                if len(album_artists) > 1 and (
+                    "various" in album_artists or "various artists" in album_artists
+                ):
                     return True
         return False
 
     def execute(self, file):
-        file['ALBUMARTIST'] = ['Various']
+        file["ALBUMARTIST"] = ["Various"]
 
 
 class RemoveTags(Operation):
@@ -78,7 +79,17 @@ operation_library = {
     "album-artist-migration": AlbumArtistMigrationOperation(),
     "album-artist-reduction": AlbumArtistReductionOperation(),
     "print-tags": PrintTagsOperation(),
-    "remove-fb2k-playback-statistics": RemoveTags(tags=['ADDED_TIMESTAMP', 'FIRST_PLAYED_TIMESTAMP', 'LAST_PLAYED_TIMESTAMP', 'PLAY_COUNT', 'RATING']),
-    "remove-artists-tags": RemoveTags(tags=['ARTISTS', 'ALBUMARTISTS']),
-    "remove-sort-tags": RemoveTags(tags=['ALBUMARTISTSORT', 'ALBUMSORT', 'ARTISTSORT', 'COMPOSERSORT', 'TITLESORT'])
+    "remove-fb2k-playback-statistics": RemoveTags(
+        tags=[
+            "ADDED_TIMESTAMP",
+            "FIRST_PLAYED_TIMESTAMP",
+            "LAST_PLAYED_TIMESTAMP",
+            "PLAY_COUNT",
+            "RATING",
+        ]
+    ),
+    "remove-artists-tags": RemoveTags(tags=["ARTISTS", "ALBUMARTISTS"]),
+    "remove-sort-tags": RemoveTags(
+        tags=["ALBUMARTISTSORT", "ALBUMSORT", "ARTISTSORT", "COMPOSERSORT", "TITLESORT"]
+    ),
 }

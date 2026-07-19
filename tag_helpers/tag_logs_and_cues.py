@@ -3,6 +3,7 @@ Tags files with logs and cuesheets that correspond to their disc.
 
 Note: It assumes one release per directory.
 """
+
 import logging
 import re
 import sys

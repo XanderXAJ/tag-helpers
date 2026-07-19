@@ -51,9 +51,7 @@ def test_run_prints_path_and_tags_for_each_file(tmp_path, monkeypatch, capsys):
 
 
 def test_run_exits_when_path_missing(tmp_path, capsys):
-    args = argparse.Namespace(
-        music_path=str(tmp_path / "absent"), extension="flac"
-    )
+    args = argparse.Namespace(music_path=str(tmp_path / "absent"), extension="flac")
 
     with pytest.raises(SystemExit) as exc:
         print_tags.run(args)

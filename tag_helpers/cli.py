@@ -1,4 +1,5 @@
 """Command line entry point for tag-helpers."""
+
 import argparse
 import logging
 import signal
@@ -62,7 +63,9 @@ def build_parser():
     logs_and_cues_parser.add_argument(
         "-c", "--cue-encoding", action="append", default=["windows-1252", "shift_jis"]
     )
-    logs_and_cues_parser.add_argument("-l", "--log-encoding", action="append", default=[])
+    logs_and_cues_parser.add_argument(
+        "-l", "--log-encoding", action="append", default=[]
+    )
     logs_and_cues_parser.set_defaults(func=tag_logs_and_cues.run)
 
     return parser

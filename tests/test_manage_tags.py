@@ -24,7 +24,9 @@ def test_files_requiring_operations_yields_only_matching_files(tmp_path, monkeyp
     assert [path for path, _ in results] == [needs]
 
 
-def test_files_requiring_operations_yields_once_for_multiple_matches(tmp_path, monkeypatch):
+def test_files_requiring_operations_yields_once_for_multiple_matches(
+    tmp_path, monkeypatch
+):
     path = tmp_path / "track.flac"
     path.touch()
     monkeypatch.setattr(
