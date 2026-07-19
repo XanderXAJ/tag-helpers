@@ -1,0 +1,26 @@
+amends "package://github.com/jdx/hk/releases/download/v1.51.0/hk@1.51.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v1.51.0/hk@1.51.0#/Builtins.pkl"
+
+local checks = new Mapping<String, Step> {
+    ["ruff"] = Builtins.ruff
+    ["ruff-format"] = Builtins.ruff_format
+    ["test"] {
+        glob = List("**/*.py")
+        check = "mise run test"
+    }
+}
+
+hooks {
+    ["pre-commit"] {
+        fix = true
+        stash = "git"
+        steps = checks
+    }
+    ["fix"] {
+        fix = true
+        steps = checks
+    }
+    ["check"] {
+        steps = checks
+    }
+}

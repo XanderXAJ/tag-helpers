@@ -1,0 +1,33 @@
+[tools]
+hk = "latest"
+pkl = "latest"
+ruff = "latest"
+# Python itself is left to uv, driven by requires-python in pyproject.toml.
+uv = "latest"
+
+[env]
+# Wrap git hooks in `mise x` so hk, ruff and pytest are on PATH for everyone.
+HK_MISE = "1"
+
+[hooks]
+postinstall = "hk install --mise"
+
+[tasks.setup]
+description = "Install Python dependencies"
+run = "uv sync"
+
+[tasks.lint]
+description = "Lint with ruff"
+run = "ruff check ."
+
+[tasks.format]
+description = "Format with ruff"
+run = "ruff format ."
+
+[tasks.test]
+description = "Run the test suite"
+run = "uv run pytest"
+
+[tasks.pre-commit]
+description = "Run the pre-commit hook manually"
+run = "hk run pre-commit"
