@@ -5,8 +5,14 @@
 `tag-helpers` installs three separate console scripts — `TagLogsAndCues`, `manageTags`,
 `printTags` — each a self-contained package with its own `main()` and `argparse` block.
 The names are inconsistent in style, the shared options (`music_path`, `--extension`) are
-re-declared in each tool, and behaviour that should be uniform is not: `manageTags`
-supports `--dry-run` and installs a `SIGINT` handler, the other two do neither.
+re-declared in each tool, and behaviour that should be uniform is not: `TagLogsAndCues`
+has `--log-level` and logs through `logging`, while `manageTags` and `printTags` print to
+stdout and offer no logging control; `manageTags` installs a `SIGINT` handler and the
+other two do not.
+
+`TagLogsAndCues.save_atomically` already carries the comment
+`# TODO: Make this in to a library function reusable by all scripts`, and `manageTags`
+duplicates that same atomic-write sequence inline.
 
 ## Goal
 
@@ -19,17 +25,31 @@ This is a behaviour-preserving refactor apart from the deliberate changes listed
 ## CLI surface
 
 ```
-tag-helpers print    <path> [-e EXT] [--dry-run]
-tag-helpers manage   <path> -o OPERATION [-o ...] [-e EXT] [--dry-run]
-tag-helpers tag-logs-and-cues <path> [-e EXT] [-R] [-c ENC ...] [-l ENC ...] [--dry-run]
+tag-helpers print    <path> [-e EXT] [--log-level LEVEL]
+tag-helpers manage   <path> -o OPERATION [-o ...] [-e EXT] [--log-level LEVEL]
+tag-helpers tag-logs-and-cues <path> [-e EXT] [-R] [-c ENC ...] [-l ENC ...] [--log-level LEVEL]
 ```
 
 A parent parser supplies `music_path`, `-e/--extension` (default `flac`) and
-`--dry-run` to every subcommand. Subcommand-specific flags stay local: `-R/--recursive`,
-`-c/--cue-encoding` and `-l/--log-encoding` on `tag-logs-and-cues`; `-o/--operation` on `manage`.
+`--log-level` (default `WARNING`) to every subcommand. Subcommand-specific flags stay
+local: `-R/--recursive`, `-c/--cue-encoding` and `-l/--log-encoding` on
+`tag-logs-and-cues`; `-o/--operation` on `manage`.
 
-`--dry-run` is a no-op for `print`, which is read-only. It is accepted there anyway so
-the flag is uniform across subcommands.
+`--log-level` is lifted from `TagLogsAndCues`, keeping its existing choices
+(`CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`) and `type=str.upper`. `cli.py` calls
+`logging.basicConfig` once after parsing. Bringing it to the other two subcommands is a
+uniformity fix, not new functionality.
+
+### Not in this change: `--dry-run`
+
+An earlier draft of this spec claimed `manageTags` already had `--dry-run` and that the
+refactor would merely make it uniform. That was wrong — `grep -rn "dry" --include=*.py .`
+matches nothing; no subcommand has ever had it.
+
+`--dry-run` is therefore new behaviour, and is deliberately excluded so this change stays
+behaviour-preserving and any post-refactor misbehaviour is unambiguously a refactor bug.
+`tagfile.py` still concentrates every write in one place, so adding it afterwards is a
+small isolated change.
 
 `print` and `manage` are short verbs; `tag-logs-and-cues` deliberately is not. No concise
 term covers logs and cuesheets together — "sidecars" and "rip files" were both considered
@@ -59,7 +79,7 @@ tag_helpers/
   __init__.py
   __main__.py       # from tag_helpers.cli import main; main()
   cli.py            # parser, subparsers, dispatch, SIGINT handler
-  tagfile.py        # load + atomic save; the dry-run choke point
+  tagfile.py        # load + atomic save; the single write choke point
   print_tags.py     # run(args)
   manage_tags.py    # run(args) — discovery, dispatch to operations
   operations.py          # Operation library (manage-internal)
@@ -96,8 +116,8 @@ Two unifications are therefore explicitly rejected:
 
 What genuinely crosses the boundary is one thing: safely writing a mutagen file. Both
 `manage` and `tag_logs_and_cues` perform the identical atomic-write sequence today. `tagfile.py`
-owns it, and is the single choke point where `--dry-run` is enforced — so no command can
-forget to honour it.
+owns it, and becomes the single point through which every write passes — which is what
+makes a later `--dry-run` a one-place change rather than a per-command one.
 
 `operations.py` is split out of `manage_tags.py` on size grounds (the operation classes
 are most of the current 158 lines), not because anything else consumes it. The import
@@ -116,7 +136,7 @@ so operations can be tested against plain dict stubs.
 tests/
   test_tag_logs_and_cues.py  # find_disc_number, read_text_from_file
   test_operations.py         # each Operation's check/execute against dict stubs
-  test_cli.py                # each subcommand parses to the expected args; dry-run
+  test_cli.py                # each subcommand parses to the expected args
 ```
 
 `pytest` is added as a dev dependency. End-to-end verification against a real music
