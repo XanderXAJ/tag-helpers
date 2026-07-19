@@ -26,6 +26,22 @@ def test_reduction_triggers_on_various_among_several():
     assert check({"ALBUMARTIST": ["various artists", "Bob"]}) is True
 
 
+def test_reduction_falls_back_to_the_spaced_tag():
+    """The docstring promises ALBUM ARTIST is checked as well as ALBUMARTIST."""
+    check = AlbumArtistReductionOperation().check
+
+    assert check({"ALBUM ARTIST": ["Various", "Bob"]}) is True
+    assert check({"ALBUM ARTIST": ["Bob", "Alice"]}) is False
+
+
+def test_reduction_writes_to_the_unspaced_tag_from_a_spaced_source():
+    file = {"ALBUM ARTIST": ["Various", "Bob"]}
+
+    AlbumArtistReductionOperation().execute(file)
+
+    assert file["ALBUMARTIST"] == ["Various"]
+
+
 def test_reduction_ignores_single_or_various_free_artists():
     check = AlbumArtistReductionOperation().check
     assert check({"ALBUMARTIST": ["Various"]}) is False

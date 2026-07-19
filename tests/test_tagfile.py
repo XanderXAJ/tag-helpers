@@ -37,6 +37,20 @@ def test_save_atomically_gives_mutagen_the_original_contents(tmp_path):
     assert stub.saw_original == b"original contents"
 
 
+def test_save_atomically_exits_on_broken_pipe(tmp_path):
+    path = tmp_path / "track.flac"
+    path.write_bytes(b"original contents")
+
+    class Broken:
+        def save(self, fileobj):
+            raise BrokenPipeError
+
+    with pytest.raises(SystemExit) as exc:
+        tagfile.save_atomically(path, Broken())
+
+    assert exc.value.code == 1
+
+
 def test_save_atomically_exits_on_keyboard_interrupt(tmp_path):
     path = tmp_path / "track.flac"
     path.write_bytes(b"original contents")

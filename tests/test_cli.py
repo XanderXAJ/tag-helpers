@@ -73,6 +73,26 @@ def test_subcommand_is_required():
         cli.build_parser().parse_args([])
 
 
+def test_sigint_handler_reports_and_exits(capsys):
+    """The 'Handle keyboard exceptions by default' behaviour lifted from manageTags."""
+    with pytest.raises(SystemExit) as exc:
+        cli.sigint_handler(None, None)
+
+    assert exc.value.code == 1
+    assert "Interrupt received, stopping..." in capsys.readouterr().err
+
+
+def test_main_dispatches_to_the_chosen_subcommand(monkeypatch):
+    called = []
+    monkeypatch.setattr(cli.print_tags, "run", lambda args: called.append(args))
+    monkeypatch.setattr("sys.argv", ["tag-helpers", "print", "/music"])
+
+    cli.main()
+
+    assert len(called) == 1
+    assert called[0].music_path == "/music"
+
+
 def test_each_subcommand_dispatches_to_its_module():
     from tag_helpers import manage_tags, print_tags, tag_logs_and_cues
 

@@ -32,6 +32,24 @@ def test_resolve_paths_honours_extension(tmp_path):
     assert found == ["two.mp3"]
 
 
+def test_run_prints_path_and_tags_for_each_file(tmp_path, monkeypatch, capsys):
+    path = tmp_path / "track.flac"
+    path.touch()
+
+    class Printable:
+        def pprint(self):
+            return "TITLE=Song"
+
+    monkeypatch.setattr(print_tags.tagfile, "load", lambda _: Printable())
+
+    args = argparse.Namespace(music_path=str(tmp_path), extension="flac")
+    print_tags.run(args)
+
+    out = capsys.readouterr().out
+    assert str(path) in out
+    assert "TITLE=Song" in out
+
+
 def test_run_exits_when_path_missing(tmp_path, capsys):
     args = argparse.Namespace(
         music_path=str(tmp_path / "absent"), extension="flac"

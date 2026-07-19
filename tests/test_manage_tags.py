@@ -40,6 +40,59 @@ def test_files_requiring_operations_yields_once_for_multiple_matches(tmp_path, m
     assert len(results) == 1
 
 
+def test_run_applies_operations_and_saves(tmp_path, monkeypatch, capsys):
+    path = tmp_path / "track.flac"
+    path.touch()
+    music_file = {"ALBUMSORT": ["Album"], "TITLE": ["Song"]}
+    saved = []
+    monkeypatch.setattr(manage_tags.tagfile, "load", lambda _: music_file)
+    monkeypatch.setattr(
+        manage_tags.tagfile, "save_atomically", lambda p, f: saved.append(p)
+    )
+
+    args = argparse.Namespace(
+        music_path=str(tmp_path), extension="flac", operation=["remove-sort-tags"]
+    )
+    manage_tags.run(args)
+
+    assert music_file == {"TITLE": ["Song"]}
+    assert saved == [path]
+    assert "Operating on" in capsys.readouterr().out
+
+
+def test_run_leaves_untouched_files_alone(tmp_path, monkeypatch):
+    (tmp_path / "track.flac").touch()
+    saved = []
+    monkeypatch.setattr(manage_tags.tagfile, "load", lambda _: {"TITLE": ["Song"]})
+    monkeypatch.setattr(
+        manage_tags.tagfile, "save_atomically", lambda p, f: saved.append(p)
+    )
+
+    args = argparse.Namespace(
+        music_path=str(tmp_path), extension="flac", operation=["remove-sort-tags"]
+    )
+    manage_tags.run(args)
+
+    assert saved == []
+
+
+def test_run_accepts_a_single_file(tmp_path, monkeypatch):
+    path = tmp_path / "track.flac"
+    path.touch()
+    saved = []
+    monkeypatch.setattr(manage_tags.tagfile, "load", lambda _: {"ALBUMSORT": ["A"]})
+    monkeypatch.setattr(
+        manage_tags.tagfile, "save_atomically", lambda p, f: saved.append(p)
+    )
+
+    args = argparse.Namespace(
+        music_path=str(path), extension="flac", operation=["remove-sort-tags"]
+    )
+    manage_tags.run(args)
+
+    assert saved == [path]
+
+
 def test_run_exits_when_path_missing(tmp_path, capsys):
     args = argparse.Namespace(
         music_path=str(tmp_path / "absent"),
