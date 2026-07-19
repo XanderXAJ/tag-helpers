@@ -8,9 +8,9 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-	"mutagen>=1.46.0",
+	"mutagen>=1.48.1",
 	"atomicwrites>=1.4.1",
-	"beautifulsoup4>=4.11.1",
+	"beautifulsoup4>=4.15.0",
 ]
 
 [project.scripts]

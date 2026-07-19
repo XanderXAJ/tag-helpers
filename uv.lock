@@ -52,8 +52,8 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "atomicwrites", specifier = ">=1.4.1" },
-    { name = "beautifulsoup4", specifier = ">=4.11.1" },
-    { name = "mutagen", specifier = ">=1.46.0" },
+    { name = "beautifulsoup4", specifier = ">=4.15.0" },
+    { name = "mutagen", specifier = ">=1.48.1" },
 ]
 
 [[package]]
