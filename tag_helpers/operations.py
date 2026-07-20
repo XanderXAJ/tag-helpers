@@ -92,6 +92,16 @@ class SplitNumberTotals(Operation):
 
         return True
 
+    def same_number(self, values, number):
+        """Reports whether values is a single number equal to number, ignoring padding."""
+        if len(values) != 1:
+            return False
+
+        try:
+            return int(values[0]) == int(number)
+        except ValueError:
+            return False
+
     def find_matches(self, file):
         """Yields (tag, total_tag, match) for each single-valued `number/total` tag."""
         for tag, total_tag in self.tags.items():
@@ -111,13 +121,17 @@ class SplitNumberTotals(Operation):
 
     def execute(self, file):
         for tag, total_tag, match in list(self.find_matches(file)):
-            number, total = match.group("number"), match.group("total")
+            # int() then str() drops any zero-padding, e.g. `01` -> `1`
+            number = str(int(match.group("number")))
+            total = str(int(match.group("total")))
             file[tag] = [number]
 
+            # An existing total that differs only by padding is not a conflict,
+            # so it gets normalised alongside everything else
             existing = file.get(total_tag)
-            if existing is None:
+            if existing is None or self.same_number(existing, total):
                 file[total_tag] = [total]
-            elif existing != [total]:
+            else:
                 logging.warning(
                     "%s is %s but %s says %s, keeping the existing %s",
                     tag,

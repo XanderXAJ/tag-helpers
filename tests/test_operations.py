@@ -118,13 +118,34 @@ def test_split_separates_the_total_into_its_own_tag():
     }
 
 
-def test_split_preserves_zero_padding():
-    """Padding is a display choice, so splitting should not silently renumber."""
-    file = {"DISCNUMBER": ["01/02"]}
+def test_split_strips_zero_padding():
+    file = {"DISCNUMBER": ["01/02"], "TRACKNUMBER": ["003/010"]}
 
     SplitNumberTotals().execute(file)
 
-    assert file == {"DISCNUMBER": ["01"], "DISCTOTAL": ["02"]}
+    assert file == {
+        "DISCNUMBER": ["1"],
+        "DISCTOTAL": ["2"],
+        "TRACKNUMBER": ["3"],
+        "TRACKTOTAL": ["10"],
+    }
+
+
+def test_split_matches_a_padded_total_against_an_unpadded_existing_one():
+    """`2` and `02` are the same total, so this is not a conflict."""
+    file = {"DISCNUMBER": ["1/2"], "DISCTOTAL": ["02"]}
+
+    SplitNumberTotals().execute(file)
+
+    assert file == {"DISCNUMBER": ["1"], "DISCTOTAL": ["2"]}
+
+
+def test_split_handles_zero_padded_zero():
+    file = {"DISCNUMBER": ["00/00"]}
+
+    SplitNumberTotals().execute(file)
+
+    assert file == {"DISCNUMBER": ["0"], "DISCTOTAL": ["0"]}
 
 
 def test_split_ignores_non_numeric_and_multi_valued_tags():
