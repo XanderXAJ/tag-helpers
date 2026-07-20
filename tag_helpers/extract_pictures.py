@@ -15,6 +15,9 @@ import logging
 import sys
 from pathlib import Path
 
+from mutagen.id3 import ID3, PictureType
+from mutagen.mp4 import MP4Cover, MP4Tags
+
 from tag_helpers import tagfile
 
 # Human-friendly names for the standard picture slots.  The integers are the
@@ -76,9 +79,45 @@ def resolve_paths(source, extension):
     sys.exit(1)
 
 
+class _Picture:
+    """Adapts a container-specific cover to the FLAC Picture attributes we use."""
+
+    def __init__(self, type, mime, data):
+        self.type = type
+        self.mime = mime
+        self.data = data
+
+
+# MP4 has no picture slot concept, so its covers are all treated as front covers.
+MP4_COVER_MIMES = {
+    MP4Cover.FORMAT_JPEG: "image/jpeg",
+    MP4Cover.FORMAT_PNG: "image/png",
+}
+
+
 def pictures_for(music_file):
-    """Returns the embedded pictures for a mutagen file, or [] if it has none."""
-    return list(getattr(music_file, "pictures", []) or [])
+    """Returns the embedded pictures for a mutagen file, or [] if it has none.
+
+    Each container stores artwork differently: FLAC exposes a .pictures list,
+    ID3-based formats (MP3, WAV, AIFF) use APIC frames, and MP4 uses covr atoms.
+    """
+    pictures = getattr(music_file, "pictures", None)
+    if pictures:
+        return list(pictures)
+
+    tags = getattr(music_file, "tags", None)
+    if isinstance(tags, ID3):
+        return list(tags.getall("APIC"))
+    if isinstance(tags, MP4Tags):
+        return [
+            _Picture(
+                PictureType.COVER_FRONT,
+                MP4_COVER_MIMES.get(cover.imageformat, ""),
+                bytes(cover),
+            )
+            for cover in tags.get("covr", [])
+        ]
+    return []
 
 
 def slot_name(picture):
@@ -101,14 +140,64 @@ def _sanitise(name):
     return name.replace("/", "_").replace("\\", "_").strip()
 
 
+# Native tag names are container-specific, so they are normalised to the
+# Vorbis-style names the format string uses.  Only the placeholders worth naming
+# a picture after are mapped; anything else stays available under its raw name.
+ID3_FIELD_NAMES = {
+    "TALB": "album",
+    "TPE1": "artist",
+    "TPE2": "albumartist",
+    "TIT2": "title",
+    "TCON": "genre",
+    "TDRC": "date",
+    "TRCK": "tracknumber",
+    "TPOS": "discnumber",
+}
+
+MP4_FIELD_NAMES = {
+    "\xa9alb": "album",
+    "\xa9ART": "artist",
+    "aART": "albumartist",
+    "\xa9nam": "title",
+    "\xa9gen": "genre",
+    "\xa9day": "date",
+}
+
+
+def _first(value):
+    """Reduces a possibly-multivalued tag to a single string."""
+    if isinstance(value, list):
+        value = value[0] if value else ""
+    return str(value)
+
+
+def text_fields(music_file):
+    """Returns the file's text tags keyed by normalised, lowercase names."""
+    tags = getattr(music_file, "tags", None) or {}
+    fields = {}
+
+    if isinstance(tags, ID3):
+        for frame_id, name in ID3_FIELD_NAMES.items():
+            frame = tags.getall(frame_id)
+            if frame and getattr(frame[0], "text", None):
+                fields[name] = _first(frame[0].text)
+        return fields
+
+    if isinstance(tags, MP4Tags):
+        for atom, name in MP4_FIELD_NAMES.items():
+            if tags.get(atom):
+                fields[name] = _first(tags[atom])
+        return fields
+
+    # Vorbis comments (FLAC, Ogg) already use the names the format string wants.
+    for key, value in tags.items():
+        fields[str(key).lower()] = _first(value)
+    return fields
+
+
 def format_fields(music_file, picture):
     """Builds the placeholder values available to the format string."""
-    fields = {}
-    tags = getattr(music_file, "tags", None) or {}
-    for key, value in tags.items():
-        if isinstance(value, list):
-            value = value[0] if value else ""
-        fields[str(key).lower()] = str(value)
+    fields = text_fields(music_file)
     # Compilations and albums with guest artists vary the artist per track, which
     # would write a copy of the same cover per artist.  Prefer the album artist so
     # shared artwork lands on one name and deduplicates.
@@ -139,7 +228,7 @@ def run(args):
     extracted = 0
 
     for path in paths:
-        music_file = tagfile.load(path)
+        music_file = tagfile.load_native(path)
         if music_file is None:
             logging.debug("Skipping unreadable file %s", path)
             continue

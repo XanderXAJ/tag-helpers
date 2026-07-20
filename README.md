@@ -95,7 +95,9 @@ The format string supports:
   artist
 - `{slot}`: the picture's slot (`Front`, `Back`, `Leaflet`, ...)
 
-The file extension is chosen automatically from the picture's MIME type.
+Artwork is read from FLAC pictures, ID3 `APIC` frames (MP3, WAV, AIFF) and MP4
+`covr` atoms. The file extension is chosen automatically from the picture's MIME
+type.
 Pictures whose formatted name and contents match one already written are
 skipped, so artwork shared across an album's tracks -- or across albums -- is
 only extracted once.

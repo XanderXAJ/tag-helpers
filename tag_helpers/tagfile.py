@@ -17,6 +17,16 @@ def load(path):
     return mutagen.File(str(path), easy=True)
 
 
+def load_native(path):
+    """Loads a music file with mutagen's native tag interface.
+
+    The easy interface normalises text tags but hides embedded pictures: it maps
+    only to text fields, so APIC/PICTURE/covr frames are unreachable through it.
+    Read-only picture work uses this instead; writes still go through load.
+    """
+    return mutagen.File(str(path))
+
+
 def save_atomically(path, music_file):
     """Saves changes to a mutagen music file as safely and atomically as possible"""
     try:
