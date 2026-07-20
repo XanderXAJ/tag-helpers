@@ -146,6 +146,46 @@ def pictures_for(music_file):
     return []
 
 
+def strip_pictures(music_file, predicate):
+    """Removes every picture for which predicate(picture) is True, in place.
+
+    Handles each container's storage: FLAC's .pictures list, ID3 APIC frames
+    (MP3/WAV), and MP4 covr atoms. predicate receives an object exposing
+    .type/.mime/.data (native frames for FLAC/ID3; a proxy for MP4 covers).
+    """
+    pictures = getattr(music_file, "pictures", None)
+    if pictures is not None:
+        keep = [p for p in list(music_file.pictures) if not predicate(p)]
+        music_file.clear_pictures()
+        for p in keep:
+            music_file.add_picture(p)
+        return
+
+    tags = getattr(music_file, "tags", None)
+    if isinstance(tags, ID3):
+        keep = [f for f in tags.getall("APIC") if not predicate(f)]
+        tags.delall("APIC")
+        for f in keep:
+            tags.add(f)
+        return
+    if isinstance(tags, MP4Tags):
+        kept = [
+            cover
+            for cover in tags.get("covr", [])
+            if not predicate(
+                _Picture(
+                    PictureType.COVER_FRONT,
+                    MP4_COVER_MIMES.get(cover.imageformat, ""),
+                    bytes(cover),
+                )
+            )
+        ]
+        if kept:
+            tags["covr"] = kept
+        else:
+            tags.pop("covr", None)
+
+
 def slot_name(picture):
     """Returns a human-friendly name for a picture's slot."""
     return PICTURE_SLOT_NAMES.get(picture.type, "Other")
@@ -243,6 +283,8 @@ def run(args):
     source = Path(args.source)
     destination = Path(args.destination)
     format_string = args.format
+    oversized = getattr(args, "oversized", False)
+    strip = getattr(args, "strip", False)
 
     paths = resolve_paths(source)
 
@@ -260,6 +302,9 @@ def run(args):
             continue
 
         for picture in pictures_for(music_file):
+            if oversized and not is_oversized_for_flac(picture):
+                continue
+
             name = destination_name(music_file, picture, format_string)
             dest = destination / name
             digest = hashlib.sha1(picture.data).hexdigest()
@@ -292,5 +337,13 @@ def run(args):
             written[dest] = digest
             extracted += 1
             print("Extracted", dest, "from", path)
+
+        if strip:
+            predicate = is_oversized_for_flac if oversized else (lambda picture: True)
+            before = len(pictures_for(music_file))
+            strip_pictures(music_file, predicate)
+            if len(pictures_for(music_file)) != before:
+                tagfile.save_atomically(path, music_file)
+                print("Stripped pictures from", path)
 
     logging.info("Extracted %d picture(s) to %s", extracted, destination)

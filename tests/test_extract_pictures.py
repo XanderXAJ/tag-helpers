@@ -307,3 +307,80 @@ def test_is_oversized_for_flac(monkeypatch):
 
     assert extract_pictures.is_oversized_for_flac(front(data=b"x" * 200)) is True
     assert extract_pictures.is_oversized_for_flac(front(data=b"x" * 10)) is False
+
+
+def _extract_args(source, destination, *, oversized=False, strip=False):
+    return argparse.Namespace(
+        source=str(source),
+        destination=str(destination),
+        format=extract_pictures.DEFAULT_FORMAT,
+        oversized=oversized,
+        strip=strip,
+    )
+
+
+def test_oversized_flag_extracts_only_large_art(tmp_path, monkeypatch):
+    source = tmp_path / "src"
+    source.mkdir()
+    write_wav_with_cover(source / "small.wav", picture_data=b"x" * 10)
+    write_wav_with_cover(source / "big.wav", picture_data=b"x" * 200)
+    destination = tmp_path / "out"
+
+    monkeypatch.setattr(extract_pictures, "FLAC_PICTURE_BLOCK_LIMIT", 100)
+    extract_pictures.run(_extract_args(source, destination, oversized=True))
+
+    written = list(destination.iterdir())
+    assert len(written) == 1
+    assert written[0].read_bytes() == b"x" * 200
+
+
+def test_strip_removes_extracted_art_from_source(tmp_path):
+    source = tmp_path / "src"
+    source.mkdir()
+    track = source / "track.wav"
+    write_wav_with_cover(track, picture_data=b"cover-bytes")
+    destination = tmp_path / "out"
+
+    extract_pictures.run(_extract_args(source, destination, strip=True))
+
+    assert (destination / "Daft Punk - Discovery (Front).jpg").exists()
+    reloaded = WAVE(str(track))
+    assert extract_pictures.pictures_for(reloaded) == []
+
+
+def test_strip_with_oversized_leaves_small_art_in_place(tmp_path, monkeypatch):
+    source = tmp_path / "src"
+    source.mkdir()
+    track = source / "track.wav"
+    write_wav_with_cover(track, picture_data=b"x" * 10)
+    destination = tmp_path / "out"
+
+    monkeypatch.setattr(extract_pictures, "FLAC_PICTURE_BLOCK_LIMIT", 100)
+    extract_pictures.run(_extract_args(source, destination, oversized=True, strip=True))
+
+    reloaded = WAVE(str(track))
+    assert len(extract_pictures.pictures_for(reloaded)) == 1
+
+
+def test_strip_pictures_removes_flac_style_matches():
+    kept = FakePicture(3, "image/jpeg", b"keep")
+    dropped = FakePicture(3, "image/jpeg", b"drop")
+
+    class _Flac:
+        def __init__(self, pics):
+            self._pics = list(pics)
+
+        @property
+        def pictures(self):
+            return self._pics
+
+        def clear_pictures(self):
+            self._pics = []
+
+        def add_picture(self, p):
+            self._pics.append(p)
+
+    flac = _Flac([kept, dropped])
+    extract_pictures.strip_pictures(flac, lambda p: p.data == b"drop")
+
+    assert flac.pictures == [kept]

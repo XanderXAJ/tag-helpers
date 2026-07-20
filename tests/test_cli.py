@@ -128,3 +128,19 @@ def test_repair_wav_dry_run_defaults_off():
     args = cli.build_parser().parse_args(["repair-wav", "/music"])
 
     assert args.dry_run is False
+
+
+def test_extract_pictures_parses_oversized_and_strip():
+    args = cli.build_parser().parse_args(
+        ["extract-pictures", "/src", "/dst", "--oversized", "--strip"]
+    )
+
+    assert args.oversized is True
+    assert args.strip is True
+
+
+def test_extract_pictures_oversized_and_strip_default_off():
+    args = cli.build_parser().parse_args(["extract-pictures", "/src", "/dst"])
+
+    assert args.oversized is False
+    assert args.strip is False

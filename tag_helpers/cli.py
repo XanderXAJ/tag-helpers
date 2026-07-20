@@ -100,6 +100,16 @@ def build_parser():
             "{slot} for the picture slot (default: %(default)r)"
         ),
     )
+    extract_parser.add_argument(
+        "--oversized",
+        action="store_true",
+        help="Only act on pictures too large for FLAC's PICTURE block limit",
+    )
+    extract_parser.add_argument(
+        "--strip",
+        action="store_true",
+        help="Remove each extracted picture from its source file",
+    )
     extract_parser.set_defaults(func=extract_pictures.run)
 
     check_parser = subparsers.add_parser(
