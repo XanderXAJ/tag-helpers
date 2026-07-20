@@ -61,14 +61,14 @@ def test_destination_name_defaults_missing_placeholders_to_empty():
 
 
 def test_destination_name_sanitises_path_separators():
-    music_file = album_file(artist="AC/DC")
+    music_file = album_file(artist="AC/DC", album="Back in Black")
 
     name = extract_pictures.destination_name(
         music_file, front(), extract_pictures.DEFAULT_FORMAT
     )
 
     assert "/" not in name.replace(".jpg", "")
-    assert name == "AC_DC - Discovery (Front).jpg"
+    assert name == "AC_DC - Back in Black (Front).jpg"
 
 
 def test_pictures_for_handles_files_without_pictures():
