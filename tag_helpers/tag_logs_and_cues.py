@@ -125,6 +125,10 @@ def process_directory(path: Path, args):
         path.glob("*.cue"), args.cue_encoding
     )
 
+    if not disc_numbers_to_logs and not disc_numbers_to_cues:
+        logging.info("No logs or cues found, skipping: %s", path)
+        return
+
     # Find and update music files
     for file in path.glob("*.{extension}".format(extension=args.extension)):
         logging.debug("Working on file: %s", file)

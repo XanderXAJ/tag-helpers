@@ -95,5 +95,4 @@ uv run pytest
 
 ## TODO
 
-- Skip[ directory if no cue or log files found]
 - Appropriately handle UTF-16 files (or convert those files to UTF-8)

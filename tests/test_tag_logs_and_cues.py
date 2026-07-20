@@ -189,6 +189,19 @@ def test_process_directory_matches_logs_and_cues_per_disc(tmp_path, monkeypatch)
     assert music_file["cue"] == ["second cue"]
 
 
+def test_process_directory_skips_directories_without_logs_or_cues(
+    tmp_path, monkeypatch
+):
+    """Without a log or a cue there is nothing to apply, so don't read the music files."""
+    (tmp_path / "track.flac").touch()
+    loaded = []
+    monkeypatch.setattr(tlc.tagfile, "load", lambda path: loaded.append(path))
+
+    tlc.process_directory(tmp_path, directory_args())
+
+    assert loaded == []
+
+
 def test_run_processes_only_the_top_directory_by_default(tmp_path, monkeypatch):
     (tmp_path / "nested").mkdir()
     visited = []
