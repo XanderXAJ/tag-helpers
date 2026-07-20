@@ -92,7 +92,3 @@ show which is being picked up.
 ```shell
 uv run pytest
 ```
-
-## TODO
-
-- Appropriately handle UTF-16 files (or convert those files to UTF-8)

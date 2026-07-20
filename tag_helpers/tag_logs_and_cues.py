@@ -4,6 +4,7 @@ Tags files with logs and cuesheets that correspond to their disc.
 Note: It assumes one release per directory.
 """
 
+import codecs
 import logging
 import re
 import sys
@@ -30,16 +31,98 @@ def find_disc_number(file):
     return None
 
 
-def read_text_from_file(file, encodings):
-    """Reads text from the passed file.
+# Byte order marks, longest first so UTF-32's mark is not mistaken for UTF-16's
+BYTE_ORDER_MARKS = (
+    (codecs.BOM_UTF32_LE, "utf-32"),
+    (codecs.BOM_UTF32_BE, "utf-32"),
+    (codecs.BOM_UTF16_LE, "utf-16"),
+    (codecs.BOM_UTF16_BE, "utf-16"),
+    (codecs.BOM_UTF8, "utf-8-sig"),
+)
 
-    Uses Unicode, Dammit to guess the file's encoding, influenced by the passed list of encodings.
+# Decodes any byte sequence without error, so it can only ever be the last resort
+FALLBACK_ENCODING = "windows-1252"
+
+
+def detect_byte_order_mark(raw):
+    """Returns the encoding named by the file's byte order mark, or None if it has none.
+
+    The codec is the BOM-aware one, so it consumes the mark rather than leaking it
+    into the text as a zero-width no-break space.
+    """
+    for mark, encoding in BYTE_ORDER_MARKS:
+        if raw.startswith(mark):
+            return encoding
+
+    return None
+
+
+def detect_bom_less_utf_16(raw):
+    """Guesses the UTF-16 variant of BOM-less text, or returns None if it looks like neither.
+
+    Log and cue files are near enough entirely ASCII, so under UTF-16 every other byte
+    is a NUL. Which half of each pair holds them gives away the endianness.
+    """
+    pairs = raw[: len(raw) - len(raw) % 2]
+    if not pairs:
+        return None
+
+    little_endian = pairs[1::2]
+    big_endian = pairs[0::2]
+
+    if little_endian.count(0) > len(little_endian) / 2:
+        return "utf-16-le"
+
+    if big_endian.count(0) > len(big_endian) / 2:
+        return "utf-16-be"
+
+    return None
+
+
+def candidate_encodings(raw, encodings):
+    """Yields the encodings to try, in the order they should be tried.
+
+    A byte order mark is authoritative, so it wins outright. Otherwise UTF-16 is
+    sniffed, then strict UTF-8 is tried — both are self-validating, unlike the
+    single-byte encodings — before falling back to the caller's own list.
+    """
+    byte_order_mark = detect_byte_order_mark(raw)
+    if byte_order_mark is not None:
+        yield byte_order_mark
+        return
+
+    bom_less_utf_16 = detect_bom_less_utf_16(raw)
+    if bom_less_utf_16 is not None:
+        yield bom_less_utf_16
+
+    yield "utf-8"
+    yield from encodings
+    yield FALLBACK_ENCODING
+
+
+def read_text_from_file(file, encodings):
+    """Reads text from the passed file, leaving the file itself untouched.
+
+    Tries each candidate encoding in turn, influenced by the passed list of encodings,
+    and falls back to Unicode, Dammit if every one of them is rejected.
     """
     with file.open(mode="br") as handle:
-        unicode = UnicodeDammit(handle.read(), encodings)
-        logging.debug("%s guessed encoding: %s", file, unicode.original_encoding)
-        logging.debug(unicode.unicode_markup)
-        return unicode.unicode_markup
+        raw = handle.read()
+
+    for encoding in candidate_encodings(raw, encodings):
+        try:
+            text = raw.decode(encoding)
+        except (UnicodeDecodeError, LookupError):
+            continue
+
+        logging.debug("%s decoded as: %s", file, encoding)
+        logging.debug(text)
+        return text
+
+    unicode = UnicodeDammit(raw, user_encodings=encodings)
+    logging.debug("%s guessed encoding: %s", file, unicode.original_encoding)
+    logging.debug(unicode.unicode_markup)
+    return unicode.unicode_markup
 
 
 def map_disc_numbers_to_file_contents(files, encoding):

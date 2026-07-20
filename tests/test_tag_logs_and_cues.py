@@ -28,6 +28,63 @@ def test_read_text_from_file_uses_supplied_encodings(tmp_path):
     assert tlc.read_text_from_file(path, ["shift_jis"]) == "トラック"
 
 
+@pytest.mark.parametrize(
+    "encoding",
+    ["utf-16", "utf-16-le", "utf-16-be", "utf-32", "utf-8-sig"],
+)
+def test_read_text_from_file_honours_byte_order_marks(tmp_path, encoding):
+    """A BOM is authoritative and must beat the supplied fallback encodings."""
+    text = 'PERFORMER "Björk"\nTITLE "Homogenic"\n'
+    path = tmp_path / "disc 1.cue"
+    path.write_bytes(text.encode(encoding))
+
+    assert tlc.read_text_from_file(path, ["windows-1252", "shift_jis"]) == text
+
+
+@pytest.mark.parametrize("encoding", ["utf-16-le", "utf-16-be"])
+def test_read_text_from_file_detects_utf_16_without_a_bom(tmp_path, encoding):
+    text = 'PERFORMER "Björk"\nTITLE "Homogenic"\n'
+    path = tmp_path / "disc 1.cue"
+    path.write_bytes(text.encode(encoding))
+
+    assert tlc.read_text_from_file(path, ["windows-1252", "shift_jis"]) == text
+
+
+def test_read_text_from_file_prefers_utf_8_over_the_fallbacks(tmp_path):
+    """windows-1252 decodes any bytes, so it must never pre-empt valid UTF-8."""
+    text = 'PERFORMER "Björk"\n'
+    path = tmp_path / "disc 1.cue"
+    path.write_bytes(text.encode("utf-8"))
+
+    assert tlc.read_text_from_file(path, ["windows-1252", "shift_jis"]) == text
+
+
+def test_read_text_from_file_uses_fallbacks_in_order(tmp_path):
+    text = "トラック"
+    path = tmp_path / "disc 1.cue"
+    path.write_bytes(text.encode("shift_jis"))
+
+    assert tlc.read_text_from_file(path, ["shift_jis", "windows-1252"]) == text
+
+
+def test_read_text_from_file_falls_back_to_windows_1252(tmp_path):
+    """Undecodable-elsewhere bytes still yield text rather than raising."""
+    path = tmp_path / "disc 1.cue"
+    path.write_bytes(b"caf\xe9")
+
+    assert tlc.read_text_from_file(path, []) == "café"
+
+
+def test_read_text_from_file_leaves_the_file_untouched(tmp_path):
+    path = tmp_path / "disc 1.cue"
+    raw = 'TITLE "Homogenic"\n'.encode("utf-16")
+    path.write_bytes(raw)
+
+    tlc.read_text_from_file(path, ["windows-1252"])
+
+    assert path.read_bytes() == raw
+
+
 def test_map_disc_numbers_maps_by_number(tmp_path):
     (tmp_path / "rip disc 1.log").write_text("first")
     (tmp_path / "rip disc 2.log").write_text("second")
