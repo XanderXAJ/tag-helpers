@@ -2,8 +2,9 @@
 
 Pictures are written to files whose names are built from a format string
 containing placeholders for the file's tags and the picture slot, e.g. the
-default ``{artist} - {album} ({slot})`` yields ``Daft Punk - Discovery
-(Front)``.  Pictures whose formatted name and contents match an
+default ``{albumartist} - {album} ({slot})`` yields ``Daft Punk - Discovery
+(Front)``.  ``{albumartist}`` falls back to the track artist when the file has
+no album artist.  Pictures whose formatted name and contents match an
 already-extracted picture are skipped, so shared artwork (for example, the same
 cover repeated across every track of an album, or across albums) is only written
 once.
@@ -42,7 +43,7 @@ PICTURE_SLOT_NAMES = {
     20: "Publisher Logo",
 }
 
-DEFAULT_FORMAT = "{artist} - {album} ({slot})"
+DEFAULT_FORMAT = "{albumartist} - {album} ({slot})"
 
 MIME_EXTENSIONS = {
     "image/jpeg": ".jpg",
@@ -108,6 +109,10 @@ def format_fields(music_file, picture):
         if isinstance(value, list):
             value = value[0] if value else ""
         fields[str(key).lower()] = str(value)
+    # Compilations and albums with guest artists vary the artist per track, which
+    # would write a copy of the same cover per artist.  Prefer the album artist so
+    # shared artwork lands on one name and deduplicates.
+    fields["albumartist"] = fields.get("albumartist") or fields.get("artist", "")
     fields["slot"] = slot_name(picture)
     return fields
 

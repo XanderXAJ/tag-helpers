@@ -83,13 +83,16 @@ encoding it turns out to be in.
 `tag-helpers extract-pictures SOURCE DESTINATION` recurses `SOURCE` for all
 matching files and writes each embedded picture into `DESTINATION`. The
 destination file name is built from `-f/--format`, whose default is
-`{artist} - {album} ({slot})`, producing names such as
+`{albumartist} - {album} ({slot})`, producing names such as
 `Daft Punk - Discovery (Front).jpg`.
 
 The format string supports:
 
 - Any tag as a placeholder, e.g. `{artist}`, `{album}`, `{albumartist}` (tag
   names are matched case-insensitively; unknown placeholders resolve to empty)
+- `{albumartist}`: falls back to `{artist}` when the file has no album artist,
+  so a compilation's shared artwork is written once rather than once per track
+  artist
 - `{slot}`: the picture's slot (`Front`, `Back`, `Leaflet`, ...)
 
 The file extension is chosen automatically from the picture's MIME type.

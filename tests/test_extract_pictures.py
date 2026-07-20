@@ -21,11 +21,11 @@ def front(data=b"front-bytes", mime="image/jpeg"):
     return FakePicture(3, mime, data)
 
 
-def album_file(artist="Daft Punk", album="Discovery", pictures=None):
-    return FakeFile(
-        {"ARTIST": [artist], "ALBUM": [album]},
-        pictures if pictures is not None else [front()],
-    )
+def album_file(artist="Daft Punk", album="Discovery", albumartist=None, pictures=None):
+    tags = {"ARTIST": [artist], "ALBUM": [album]}
+    if albumartist is not None:
+        tags["ALBUMARTIST"] = [albumartist]
+    return FakeFile(tags, pictures if pictures is not None else [front()])
 
 
 def test_slot_name_maps_known_types():
@@ -46,6 +46,26 @@ def test_extension_for_known_and_unknown_mimes():
 def test_destination_name_uses_default_format():
     name = extract_pictures.destination_name(
         album_file(), front(), extract_pictures.DEFAULT_FORMAT
+    )
+
+    assert name == "Daft Punk - Discovery (Front).jpg"
+
+
+def test_destination_name_prefers_album_artist():
+    music_file = album_file(artist="Thomas Bangalter", albumartist="Daft Punk")
+
+    name = extract_pictures.destination_name(
+        music_file, front(), extract_pictures.DEFAULT_FORMAT
+    )
+
+    assert name == "Daft Punk - Discovery (Front).jpg"
+
+
+def test_destination_name_falls_back_to_artist_for_blank_album_artist():
+    music_file = album_file(artist="Daft Punk", albumartist="")
+
+    name = extract_pictures.destination_name(
+        music_file, front(), extract_pictures.DEFAULT_FORMAT
     )
 
     assert name == "Daft Punk - Discovery (Front).jpg"
