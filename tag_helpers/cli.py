@@ -17,15 +17,19 @@ def sigint_handler(signal, frame):
 def build_parser():
     """Builds the argument parser for tag-helpers and its subcommands."""
     # Options every subcommand shares, supplied via parent parsers
-    shared = argparse.ArgumentParser(add_help=False)
-    shared.add_argument("-e", "--extension", default="flac")
-    shared.add_argument(
+    logging_opts = argparse.ArgumentParser(add_help=False)
+    logging_opts.add_argument(
         "--log-level",
         help="Set logging level",
         default="WARNING",
         type=str.upper,
         choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
     )
+
+    # Tag operations act on one file type at a time; extract-pictures instead
+    # walks every file it can read, so it does not take --extension.
+    shared = argparse.ArgumentParser(add_help=False, parents=[logging_opts])
+    shared.add_argument("-e", "--extension", default="flac")
 
     # Subcommands that operate on a single music path add it on top of `shared`.
     common = argparse.ArgumentParser(add_help=False, parents=[shared])
@@ -73,7 +77,7 @@ def build_parser():
 
     extract_parser = subparsers.add_parser(
         "extract-pictures",
-        parents=[shared],
+        parents=[logging_opts],
         help="Extract embedded pictures from files to a destination directory",
     )
     extract_parser.add_argument("source", help="Directory (or file) to search")

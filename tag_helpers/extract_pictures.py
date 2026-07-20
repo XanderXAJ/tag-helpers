@@ -67,11 +67,16 @@ class _DefaultingDict(dict):
         return ""
 
 
-def resolve_paths(source, extension):
-    """Yields the music files under source (a directory), recursing all files."""
+def resolve_paths(source):
+    """Yields every file under source (a directory), recursing.
+
+    Files are not filtered by extension: a folder typically mixes formats
+    (FLAC, WAV, MP3, ...), and mutagen decides per file what it can read, so
+    ``run`` simply skips anything it cannot open as a tagged audio file.
+    """
     source = Path(source)
     if source.is_dir():
-        return source.glob("**/*.{extension}".format(extension=extension))
+        return (path for path in source.glob("**/*") if path.is_file())
     if source.is_file():
         return iter([source])
 
@@ -218,7 +223,7 @@ def run(args):
     destination = Path(args.destination)
     format_string = args.format
 
-    paths = resolve_paths(source, args.extension)
+    paths = resolve_paths(source)
 
     destination.mkdir(parents=True, exist_ok=True)
 

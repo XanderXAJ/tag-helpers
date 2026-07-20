@@ -115,7 +115,6 @@ def _run(tmp_path, monkeypatch, files, source=None, destination=None, fmt=None):
     args = argparse.Namespace(
         source=str(source),
         destination=str(destination),
-        extension="flac",
         format=fmt or extract_pictures.DEFAULT_FORMAT,
     )
     extract_pictures.run(args)
@@ -249,6 +248,17 @@ def test_destination_name_normalises_mp4_atoms():
     assert name == "Daft Punk - Discovery (Front).jpg"
 
 
+def test_resolve_paths_returns_every_file_regardless_of_extension(tmp_path):
+    (tmp_path / "a.wav").write_bytes(b"")
+    (tmp_path / "b.flac").write_bytes(b"")
+    (tmp_path / "sub").mkdir()
+    (tmp_path / "sub" / "c.mp3").write_bytes(b"")
+
+    resolved = sorted(p.name for p in extract_pictures.resolve_paths(tmp_path))
+
+    assert resolved == ["a.wav", "b.flac", "c.mp3"]
+
+
 def test_run_extracts_pictures_from_a_real_wav_file(tmp_path):
     source = tmp_path / "src"
     source.mkdir()
@@ -259,7 +269,6 @@ def test_run_extracts_pictures_from_a_real_wav_file(tmp_path):
         argparse.Namespace(
             source=str(source),
             destination=str(destination),
-            extension="wav",
             format=extract_pictures.DEFAULT_FORMAT,
         )
     )

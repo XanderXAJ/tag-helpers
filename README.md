@@ -32,9 +32,11 @@ A single `tag-helpers` command is installed, with the following subcommands:
 - `tag-helpers print`: Pretty prints tags for all matching music files under a given path
 - `tag-helpers extract-pictures`: Extracts embedded pictures from files (recursing a source directory) into a destination directory
 
-All subcommands accept `-e/--extension` (default `flac`) and `--log-level`. Every
-subcommand except `extract-pictures` also takes a music path; `extract-pictures`
-takes a `source` and a `destination` instead.
+All subcommands accept `--log-level`. The tag subcommands also accept
+`-e/--extension` (default `flac`) and a music path. `extract-pictures` is
+different: it takes a `source` and a `destination`, and reads every file it can
+open regardless of extension, so a folder mixing FLAC, WAV, MP3 and the like is
+covered in a single run.
 
 ### Text encodings
 
@@ -80,8 +82,8 @@ encoding it turns out to be in.
 
 ### Extracting pictures
 
-`tag-helpers extract-pictures SOURCE DESTINATION` recurses `SOURCE` for all
-matching files and writes each embedded picture into `DESTINATION`. The
+`tag-helpers extract-pictures SOURCE DESTINATION` recurses `SOURCE` for every
+readable audio file and writes each embedded picture into `DESTINATION`. The
 destination file name is built from `-f/--format`, whose default is
 `{albumartist} - {album} ({slot})`, producing names such as
 `Daft Punk - Discovery (Front).jpg`.
