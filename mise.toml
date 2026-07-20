@@ -38,7 +38,10 @@ run = "uv run pytest"
 
 [tasks.install]
 description = "Install tag-helpers locally as a CLI tool"
-run = "uv tool install --force ."
+# --reinstall (not --force) rebuilds from source: the version stays 0.1.0
+# across code changes, so --force alone reuses uv's cached wheel and installs
+# stale code.
+run = "uv tool install --reinstall ."
 
 [tasks.ci]
 description = "Run everything CI runs: the same checks as the pre-commit hook"
