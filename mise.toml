@@ -33,6 +33,11 @@ run = "ruff format ."
 description = "Run the test suite"
 run = "uv run pytest"
 
+[tasks.ci]
+description = "Run everything CI runs: the same checks as the pre-commit hook"
+depends = ["setup"]
+run = "hk run check --all"
+
 [tasks.pre-commit]
 description = "Run the pre-commit hook manually"
 run = "hk run pre-commit"
