@@ -8,6 +8,11 @@ local checks = new Mapping<String, Step> {
         glob = List("**/*.py")
         check = "mise run test"
     }
+    // GitHub Actions: pinact pins actions to SHAs, actionlint catches workflow
+    // mistakes, zizmor audits for supply-chain and injection risks.
+    ["pinact"] = Builtins.pinact
+    ["actionlint"] = Builtins.actionlint
+    ["zizmor"] = Builtins.zizmor
 }
 
 hooks {

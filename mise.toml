@@ -1,8 +1,11 @@
 [tools]
+actionlint = "latest"
 hk = "latest"
+pinact = "latest"
 pkl = "latest"
 ruff = "latest"
 uv = "latest"
+zizmor = "latest"
 # Python is pinned in .python-version, which both mise and uv read natively
 # (see [settings] below). pyproject.toml's requires-python remains the floor.
 
