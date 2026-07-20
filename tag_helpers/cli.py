@@ -5,7 +5,7 @@ import logging
 import signal
 import sys
 
-from tag_helpers import manage_tags, print_tags, tag_logs_and_cues
+from tag_helpers import extract_pictures, manage_tags, print_tags, tag_logs_and_cues
 from tag_helpers.operations import operation_library
 
 
@@ -16,17 +16,20 @@ def sigint_handler(signal, frame):
 
 def build_parser():
     """Builds the argument parser for tag-helpers and its subcommands."""
-    # Options every subcommand shares, supplied via a parent parser
-    common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("music_path")
-    common.add_argument("-e", "--extension", default="flac")
-    common.add_argument(
+    # Options every subcommand shares, supplied via parent parsers
+    shared = argparse.ArgumentParser(add_help=False)
+    shared.add_argument("-e", "--extension", default="flac")
+    shared.add_argument(
         "--log-level",
         help="Set logging level",
         default="WARNING",
         type=str.upper,
         choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
     )
+
+    # Subcommands that operate on a single music path add it on top of `shared`.
+    common = argparse.ArgumentParser(add_help=False, parents=[shared])
+    common.add_argument("music_path")
 
     parser = argparse.ArgumentParser(
         prog="tag-helpers", description="Scripts to help with tagging music files"
@@ -67,6 +70,26 @@ def build_parser():
         "-l", "--log-encoding", action="append", default=[]
     )
     logs_and_cues_parser.set_defaults(func=tag_logs_and_cues.run)
+
+    extract_parser = subparsers.add_parser(
+        "extract-pictures",
+        parents=[shared],
+        help="Extract embedded pictures from files to a destination directory",
+    )
+    extract_parser.add_argument("source", help="Directory (or file) to search")
+    extract_parser.add_argument(
+        "destination", help="Directory to write extracted pictures into"
+    )
+    extract_parser.add_argument(
+        "-f",
+        "--format",
+        default=extract_pictures.DEFAULT_FORMAT,
+        help=(
+            "Format for destination file names, with placeholders for tags and "
+            "{slot} for the picture slot (default: %(default)r)"
+        ),
+    )
+    extract_parser.set_defaults(func=extract_pictures.run)
 
     return parser
 
