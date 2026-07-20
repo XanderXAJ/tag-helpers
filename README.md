@@ -14,19 +14,17 @@ uv tool install git+https://github.com/XanderXAJ/tag-helpers
 To install from a local clone instead:
 
 ```shell
-uv tool install ./
+mise run install
 ```
+
+This wraps `uv tool install --force ./`. The `--force` matters during development:
+the version number often does not change between builds, so without it `uv` would
+consider the installed copy up to date and do nothing.
 
 To update:
 
 ```shell
 uv tool upgrade tag-helpers
-```
-
-During development the version number may not change, in which case force a reinstall:
-
-```shell
-uv tool install --reinstall ./
 ```
 
 ## Usage
@@ -112,8 +110,11 @@ uv tool install --reinstall git+https://github.com/XanderXAJ/tag-helpers
 
 ## Development
 
+Development tooling is pinned in [mise.toml](./mise.toml), which also defines the
+tasks used below. `mise install` fetches the toolchain; `mise tasks` lists them all.
+
 ```shell
-uv sync
+mise run setup   # uv sync
 ```
 
 ### Test installation
@@ -132,5 +133,7 @@ show which is being picked up.
 ### Tests
 
 ```shell
-uv run pytest
+mise run test   # uv run pytest
 ```
+
+`mise run ci` runs everything CI runs.
