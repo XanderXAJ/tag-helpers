@@ -36,6 +36,10 @@ run = "ruff format ."
 description = "Run the test suite"
 run = "uv run pytest"
 
+[tasks.install]
+description = "Install tag-helpers locally as a CLI tool"
+run = "uv tool install --force ."
+
 [tasks.ci]
 description = "Run everything CI runs: the same checks as the pre-commit hook"
 depends = ["setup"]
