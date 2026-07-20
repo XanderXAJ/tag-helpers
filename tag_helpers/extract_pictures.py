@@ -58,6 +58,27 @@ MIME_EXTENSIONS = {
     "image/webp": ".webp",
 }
 
+# A FLAC metadata block's length is a 24-bit field, so the whole PICTURE block
+# (fixed fields + mime + description + image bytes) must fit in 2**24 - 1 bytes.
+# Art bigger than this is what makes foobar report "Picture too large for FLAC".
+FLAC_PICTURE_BLOCK_LIMIT = (1 << 24) - 1
+
+# Eight 4-byte integers: type, mime-length, desc-length, width, height, depth,
+# colours, data-length.
+_PICTURE_FIXED_BYTES = 8 * 4
+
+
+def flac_picture_block_size(picture):
+    """Bytes the picture would occupy as a FLAC PICTURE metadata block body."""
+    mime = (getattr(picture, "mime", "") or "").encode("ascii", "replace")
+    desc = (getattr(picture, "desc", "") or "").encode("utf-8")
+    return _PICTURE_FIXED_BYTES + len(mime) + len(desc) + len(picture.data)
+
+
+def is_oversized_for_flac(picture):
+    """True when the picture would exceed FLAC's PICTURE block size limit."""
+    return flac_picture_block_size(picture) > FLAC_PICTURE_BLOCK_LIMIT
+
 
 class _DefaultingDict(dict):
     """Maps missing format placeholders to an empty string rather than erroring."""

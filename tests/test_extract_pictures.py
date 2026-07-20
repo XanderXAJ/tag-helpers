@@ -290,3 +290,20 @@ def test_run_extracts_multiple_slots(tmp_path, monkeypatch):
         "Daft Punk - Discovery (Back).png",
         "Daft Punk - Discovery (Front).jpg",
     ]
+
+
+def test_flac_picture_block_size_counts_fixed_fields_mime_desc_and_data():
+    picture = FakePicture(3, "image/jpeg", b"1234567890")
+    # 8 fixed 4-byte fields (32) + len("image/jpeg") (10) + desc "" (0) + data (10)
+    assert extract_pictures.flac_picture_block_size(picture) == 32 + 10 + 0 + 10
+
+
+def test_flac_picture_block_limit_is_24_bit():
+    assert extract_pictures.FLAC_PICTURE_BLOCK_LIMIT == (1 << 24) - 1
+
+
+def test_is_oversized_for_flac(monkeypatch):
+    monkeypatch.setattr(extract_pictures, "FLAC_PICTURE_BLOCK_LIMIT", 100)
+
+    assert extract_pictures.is_oversized_for_flac(front(data=b"x" * 200)) is True
+    assert extract_pictures.is_oversized_for_flac(front(data=b"x" * 10)) is False
