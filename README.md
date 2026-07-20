@@ -17,10 +17,6 @@ To install from a local clone instead:
 mise run install
 ```
 
-This wraps `uv tool install --force ./`. The `--force` matters during development:
-the version number often does not change between builds, so without it `uv` would
-consider the installed copy up to date and do nothing.
-
 To update:
 
 ```shell
@@ -110,16 +106,15 @@ uv tool install --reinstall git+https://github.com/XanderXAJ/tag-helpers
 
 ## Development
 
-Development tooling is pinned in [mise.toml](./mise.toml), which also defines the
-tasks used below. `mise install` fetches the toolchain; `mise tasks` lists them all.
+Tooling and tasks are defined in [mise.toml](./mise.toml); `mise tasks` lists them.
 
 ```shell
-mise run setup   # uv sync
+mise run setup
 ```
 
-### Test installation
+### Running the CLI without installing
 
-`uv sync` installs the commands defined in [pyproject.toml](./pyproject.toml)'s `[project.scripts]` into the project virtualenv, allowing the standalone commands to be tested:
+`mise run setup` puts the commands defined in [pyproject.toml](./pyproject.toml)'s `[project.scripts]` into the project virtualenv, so they can be run without installing the tool:
 
 ```shell
 uv run tag-helpers --help
@@ -133,7 +128,5 @@ show which is being picked up.
 ### Tests
 
 ```shell
-mise run test   # uv run pytest
+mise run test
 ```
-
-`mise run ci` runs everything CI runs.
