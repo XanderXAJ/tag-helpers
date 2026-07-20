@@ -16,6 +16,9 @@ from tag_helpers import tagfile
 # Case-insensitive disc-matching regex
 DISC_NUMBER_REGEX = re.compile(r"(?i)(?:dis[ck]|cd) ?(?P<disc>[0-9]+)")
 
+# Matches the disc number in a DISCNUMBER tag, which may carry a total, e.g. `1/2`
+DISC_TAG_REGEX = re.compile(r"^(?P<disc>[0-9]+)(?:/[0-9]+)?$")
+
 
 def find_disc_number(file):
     """Attempts to find the disc number in a file's name, returns None if none is found"""
@@ -80,7 +83,15 @@ def apply_disc_specific_tag(path, music_file, disc_mapping, tag):
     if "discnumber" not in music_file:
         return False
 
-    disc_number = int(music_file["discnumber"][0])
+    disc_tag = music_file["discnumber"][0]
+    disc_match = DISC_TAG_REGEX.match(disc_tag)
+    if disc_match is None:
+        logging.info(
+            "Could not read a disc number from %s, skipping %s", disc_tag, path
+        )
+        return False
+
+    disc_number = int(disc_match.group("disc"))
     if disc_number not in disc_mapping:
         logging.info("No %s entry for disc %s, skipping %s", tag, disc_number, path)
         return False

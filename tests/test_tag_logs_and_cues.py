@@ -74,6 +74,26 @@ def test_apply_disc_specific_tag_skips_without_discnumber():
     assert changed is False
 
 
+def test_apply_disc_specific_tag_reads_a_combined_discnumber():
+    """Files tagged `2/3` should still be matched to disc 2 rather than blowing up."""
+    music_file = {"discnumber": ["2/3"]}
+
+    changed = tlc.apply_disc_specific_tag(
+        Path("track.flac"), music_file, {2: "contents"}, "log"
+    )
+
+    assert changed is True
+    assert music_file["log"] == ["contents"]
+
+
+def test_apply_disc_specific_tag_skips_an_unparseable_discnumber():
+    changed = tlc.apply_disc_specific_tag(
+        Path("track.flac"), {"discnumber": ["one"]}, {1: "contents"}, "log"
+    )
+
+    assert changed is False
+
+
 def test_apply_disc_specific_tag_skips_when_no_entry_for_disc():
     changed = tlc.apply_disc_specific_tag(
         Path("track.flac"), {"discnumber": ["2"]}, {1: "contents"}, "log"

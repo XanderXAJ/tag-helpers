@@ -1,8 +1,13 @@
+from mutagen.easyid3 import EasyID3
+from mutagen.easymp4 import EasyMP4Tags
+from mutagen.flac import VCFLACDict
+
 from tag_helpers.operations import (
     AlbumArtistMigrationOperation,
     AlbumArtistReductionOperation,
     PrintTagsOperation,
     RemoveTags,
+    SplitNumberTotals,
     operation_library,
 )
 
@@ -92,6 +97,80 @@ def test_safe_execute_skips_when_check_fails():
     assert file == {"TITLE": ["Song"]}
 
 
+def test_split_checks_only_for_combined_values():
+    check = SplitNumberTotals().check
+    assert check({"DISCNUMBER": ["1/2"]}) is True
+    assert check({"TRACKNUMBER": ["3/10"]}) is True
+    assert check({"DISCNUMBER": ["1"], "DISCTOTAL": ["2"]}) is False
+    assert check({}) is False
+
+
+def test_split_separates_the_total_into_its_own_tag():
+    file = {"DISCNUMBER": ["1/2"], "TRACKNUMBER": ["3/10"]}
+
+    SplitNumberTotals().execute(file)
+
+    assert file == {
+        "DISCNUMBER": ["1"],
+        "DISCTOTAL": ["2"],
+        "TRACKNUMBER": ["3"],
+        "TRACKTOTAL": ["10"],
+    }
+
+
+def test_split_preserves_zero_padding():
+    """Padding is a display choice, so splitting should not silently renumber."""
+    file = {"DISCNUMBER": ["01/02"]}
+
+    SplitNumberTotals().execute(file)
+
+    assert file == {"DISCNUMBER": ["01"], "DISCTOTAL": ["02"]}
+
+
+def test_split_ignores_non_numeric_and_multi_valued_tags():
+    check = SplitNumberTotals().check
+    assert check({"DISCNUMBER": ["A/B"]}) is False
+    assert check({"DISCNUMBER": ["1/"]}) is False
+    assert check({"DISCNUMBER": ["1/2", "3/4"]}) is False
+
+
+def test_split_keeps_a_differing_existing_total():
+    """An existing total that disagrees is a conflict, not something to overwrite."""
+    file = {"DISCNUMBER": ["1/2"], "DISCTOTAL": ["5"]}
+
+    SplitNumberTotals().execute(file)
+
+    assert file == {"DISCNUMBER": ["1"], "DISCTOTAL": ["5"]}
+
+
+def test_split_is_idempotent():
+    file = {"DISCNUMBER": ["1/2"]}
+    operation = SplitNumberTotals()
+
+    operation.safe_execute(file)
+    operation.safe_execute(file)
+
+    assert file == {"DISCNUMBER": ["1"], "DISCTOTAL": ["2"]}
+    assert operation.check(file) is False
+
+
+def test_split_leaves_id3_and_mp4_alone():
+    """`number/total` is the native ID3/MP4 form, and neither accepts a separate total."""
+    for tags in (EasyID3(), EasyMP4Tags()):
+        tags["discnumber"] = ["1/2"]
+
+        assert SplitNumberTotals().check(tags) is False
+
+
+def test_split_applies_to_vorbis_comments():
+    tags = VCFLACDict()
+    tags["DISCNUMBER"] = ["1/2"]
+
+    SplitNumberTotals().safe_execute(tags)
+
+    assert tags.as_dict() == {"discnumber": ["1"], "disctotal": ["2"]}
+
+
 def test_operation_library_uses_kebab_case_keys():
     assert set(operation_library) == {
         "album-artist-migration",
@@ -100,4 +179,5 @@ def test_operation_library_uses_kebab_case_keys():
         "remove-fb2k-playback-statistics",
         "remove-artists-tags",
         "remove-sort-tags",
+        "split-number-totals",
     }
