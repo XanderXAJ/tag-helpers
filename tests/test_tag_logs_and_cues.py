@@ -75,6 +75,14 @@ def test_read_text_from_file_falls_back_to_windows_1252(tmp_path):
     assert tlc.read_text_from_file(path, []) == "café"
 
 
+def test_read_text_from_file_skips_unknown_encoding_names(tmp_path):
+    """A typo in --cue-encoding should not be fatal; later candidates still apply."""
+    path = tmp_path / "disc 1.cue"
+    path.write_bytes("トラック".encode("shift_jis"))
+
+    assert tlc.read_text_from_file(path, ["not-an-encoding", "shift_jis"]) == "トラック"
+
+
 def test_read_text_from_file_leaves_the_file_untouched(tmp_path):
     path = tmp_path / "disc 1.cue"
     raw = 'TITLE "Homogenic"\n'.encode("utf-16")
