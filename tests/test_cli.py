@@ -103,3 +103,12 @@ def test_each_subcommand_dispatches_to_its_module():
         parser.parse_args(["manage", "/m", "-o", "print-tags"]).func is manage_tags.run
     )
     assert parser.parse_args(["tag-logs-and-cues", "/m"]).func is tag_logs_and_cues.run
+
+
+def test_check_subcommand_dispatches_to_check_module():
+    from tag_helpers import check
+
+    args = cli.build_parser().parse_args(["check", "/music"])
+
+    assert args.music_path == "/music"
+    assert args.func is check.run

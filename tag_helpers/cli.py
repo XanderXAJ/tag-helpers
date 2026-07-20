@@ -5,7 +5,13 @@ import logging
 import signal
 import sys
 
-from tag_helpers import extract_pictures, manage_tags, print_tags, tag_logs_and_cues
+from tag_helpers import (
+    check,
+    extract_pictures,
+    manage_tags,
+    print_tags,
+    tag_logs_and_cues,
+)
 from tag_helpers.operations import operation_library
 
 
@@ -94,6 +100,14 @@ def build_parser():
         ),
     )
     extract_parser.set_defaults(func=extract_pictures.run)
+
+    check_parser = subparsers.add_parser(
+        "check",
+        parents=[logging_opts],
+        help="Diagnose WAV RIFF problems and oversized FLAC art under a path",
+    )
+    check_parser.add_argument("music_path")
+    check_parser.set_defaults(func=check.run)
 
     return parser
 
