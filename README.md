@@ -31,7 +31,7 @@ uv tool install --reinstall ./
 
 ## Usage
 
-A single `tag-helpers` command is installed, with four subcommands:
+A single `tag-helpers` command is installed, with the following subcommands:
 
 - `tag-helpers tag-logs-and-cues`: Tags music files with `*.log` and `*.cue` files in their `LOG` and `CUE` metadata fields respectively
 - `tag-helpers manage`: Runs selected tag operations (e.g. `ALBUM ARTIST` -> `ALBUMARTIST` migration, removing playback statistics) over a file or directory
