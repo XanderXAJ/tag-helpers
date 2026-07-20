@@ -10,6 +10,7 @@ from tag_helpers import (
     extract_pictures,
     manage_tags,
     print_tags,
+    repair_wav,
     tag_logs_and_cues,
 )
 from tag_helpers.operations import operation_library
@@ -108,6 +109,19 @@ def build_parser():
     )
     check_parser.add_argument("music_path")
     check_parser.set_defaults(func=check.run)
+
+    repair_parser = subparsers.add_parser(
+        "repair-wav",
+        parents=[logging_opts],
+        help="Re-wrap broken WAVs in place with ffmpeg to fix RIFF headers",
+    )
+    repair_parser.add_argument("music_path")
+    repair_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Classify only; do not run ffmpeg or modify anything",
+    )
+    repair_parser.set_defaults(func=repair_wav.run)
 
     return parser
 

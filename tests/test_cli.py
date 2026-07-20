@@ -112,3 +112,19 @@ def test_check_subcommand_dispatches_to_check_module():
 
     assert args.music_path == "/music"
     assert args.func is check.run
+
+
+def test_repair_wav_subcommand_parses_dry_run():
+    from tag_helpers import repair_wav
+
+    args = cli.build_parser().parse_args(["repair-wav", "/music", "--dry-run"])
+
+    assert args.music_path == "/music"
+    assert args.dry_run is True
+    assert args.func is repair_wav.run
+
+
+def test_repair_wav_dry_run_defaults_off():
+    args = cli.build_parser().parse_args(["repair-wav", "/music"])
+
+    assert args.dry_run is False
