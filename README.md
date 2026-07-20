@@ -31,6 +31,8 @@ A single `tag-helpers` command is installed, with the following subcommands:
 - `tag-helpers manage`: Runs selected tag operations (e.g. `ALBUM ARTIST` -> `ALBUMARTIST` migration, removing playback statistics) over a file or directory
 - `tag-helpers print`: Pretty prints tags for all matching music files under a given path
 - `tag-helpers extract-pictures`: Extracts embedded pictures from files (recursing a source directory) into a destination directory
+- `tag-helpers check`: Diagnoses WAV RIFF/truncation problems and cover art too large for FLAC, without changing anything
+- `tag-helpers repair-wav`: Re-wraps broken WAVs in place (using `ffmpeg`) to fix RIFF headers
 
 All subcommands accept `--log-level`. The tag subcommands also accept
 `-e/--extension` (default `flac`) and a music path. `extract-pictures` is
@@ -103,6 +105,39 @@ type.
 Pictures whose formatted name and contents match one already written are
 skipped, so artwork shared across an album's tracks -- or across albums -- is
 only extracted once.
+
+To pull only the oversized covers out and remove them from their source files
+(so the files convert to FLAC), extract with `--oversized --strip` -- resize and
+re-embed the extracted image yourself:
+
+```shell
+tag-helpers extract-pictures "/src" "/covers" --oversized --strip
+```
+
+### Checking and repairing WAVs before conversion
+
+Some WAVs carry a RIFF header that over-states the file size, or a `data` chunk
+that is cut short. These fail conversion to FLAC *and* fail to tag, because a
+lying size hides where the audio ends. Cover art larger than FLAC's ~16 MiB
+PICTURE limit fails conversion too.
+
+`tag-helpers check` reports both, read-only, and exits non-zero if it finds any
+-- so it can gate a conversion run:
+
+```shell
+tag-helpers check "/path/to/music"
+```
+
+`tag-helpers repair-wav` fixes the RIFF problems by re-wrapping the flagged WAVs
+in place with `ffmpeg` (which must be on your `PATH`). Preview first, then apply:
+
+```shell
+tag-helpers repair-wav "/path/to/music" --dry-run
+tag-helpers repair-wav "/path/to/music"
+```
+
+Files reported as truncated are salvaged with a correct header, but their missing
+audio is genuinely gone -- re-source those.
 
 If you previously installed the separate `TagLogsAndCues`, `manageTags` and `printTags`
 commands, reinstall to replace them:
