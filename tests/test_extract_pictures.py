@@ -1,6 +1,5 @@
 import argparse
 
-import pytest
 
 from tag_helpers import extract_pictures
 

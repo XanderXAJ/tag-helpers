@@ -161,7 +161,8 @@ def run(args):
                     )
                 )
                 if written.get(dest) == digest or (
-                    dest.exists() and hashlib.sha1(dest.read_bytes()).hexdigest() == digest
+                    dest.exists()
+                    and hashlib.sha1(dest.read_bytes()).hexdigest() == digest
                 ):
                     logging.info("Skipping duplicate %s (from %s)", dest, path)
                     written[dest] = digest
